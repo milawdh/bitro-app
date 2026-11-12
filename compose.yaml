@@ -1,9 +1,16 @@
 name: bitro-frontend
 services:
   frontend:
-    build: .
+    build: ./app
     image: bitro-frontend:local
     container_name: bitro-frontend
     ports:
       - "3000:3000"
+    restart: unless-stopped
+  admin:
+    build: ./admin
+    image: bitro-admin:local
+    container_name: bitro-admin
+    ports:
+      - "3001:3000"
     restart: unless-stopped

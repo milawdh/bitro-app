@@ -2,7 +2,7 @@ node_modules/
 .pnpm-store/
 .next/
 out/
-public/monaco/
+**/public/monaco/
 *.tsbuildinfo
 test-results/
 playwright-report/

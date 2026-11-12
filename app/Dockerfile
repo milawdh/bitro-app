@@ -9,7 +9,7 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN node scripts/copy-monaco.mjs && npm run build
+RUN node scripts/copy-monaco.mjs && npm run typecheck && npm run lint && npm test -- --maxWorkers=2 && npm run build
 
 FROM node:24-alpine AS runner
 WORKDIR /app

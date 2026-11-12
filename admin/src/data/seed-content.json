@@ -1,0 +1,809 @@
+{
+  "courses": [
+    {
+      "slug": "csharp",
+      "title": "دنیای سی‌شارپ",
+      "subtitle": "C# Fundamentals",
+      "description": "از اولین متغیر تا تفکر شیءگرا؛ مفاهیم را ببین، تغییر بده و عمیق یاد بگیر.",
+      "tag": "مناسب شروع",
+      "color": "purple",
+      "icon": "code",
+      "modules": [
+        "آشنایی با برنامه‌نویسی",
+        "متغیرها و انواع داده",
+        "عملگرها",
+        "شرط‌ها",
+        "حلقه‌ها",
+        "متدها",
+        "آرایه‌ها و مجموعه‌ها",
+        "کلاس‌ها و اشیا",
+        "کپسوله‌سازی",
+        "وراثت",
+        "چندریختی",
+        "رابط‌ها",
+        "مدیریت خطا",
+        "LINQ",
+        "Async/Await"
+      ],
+      "lessons": [
+        {
+          "slug": "variables",
+          "title": "متغیر چیست؟",
+          "description": "یک نام، یک مقدار و دنیایی از امکان‌ها.",
+          "duration": 12,
+          "concept": "variables"
+        },
+        {
+          "slug": "references",
+          "title": "مقدار یا ارجاع؟",
+          "description": "ببین کپی‌کردن داده‌ها دقیقاً چه معنایی دارد.",
+          "duration": 18,
+          "concept": "references"
+        },
+        {
+          "slug": "loops",
+          "title": "قدرت تکرار با حلقه‌ها",
+          "description": "به کامپیوتر یاد بده کارهای تکراری را انجام دهد.",
+          "duration": 15,
+          "concept": "loops"
+        },
+        {
+          "slug": "objects",
+          "title": "کلاس‌ها و اشیا",
+          "description": "از یک نقشه، چند ماشین مستقل بساز.",
+          "duration": 20,
+          "concept": "objects"
+        },
+        {
+          "slug": "threads",
+          "title": "نخ‌ها و هم‌زمانی",
+          "description": "جریان اجرای برنامه را قدم‌به‌قدم دنبال کن.",
+          "duration": 22,
+          "concept": "threads"
+        },
+        {
+          "slug": "async",
+          "title": "منتظر بمان، اما متوقف نشو",
+          "description": "انتظار ناهمگام و ادامهٔ کار با Async/Await.",
+          "duration": 18,
+          "concept": "async"
+        }
+      ]
+    },
+    {
+      "slug": "dotnet",
+      "title": "مهندسی بک‌اند با دات‌نت",
+      "subtitle": ".NET Backend Development",
+      "description": "از اولین درخواست تا ساخت یک API؛ پشت صحنهٔ وب را کشف کن.",
+      "tag": "سطح متوسط",
+      "color": "cyan",
+      "icon": "server",
+      "modules": [
+        "ساختار پروژهٔ .NET",
+        "مبانی ASP.NET Core",
+        "HTTP و REST",
+        "کنترلرها و Minimal API",
+        "تزریق وابستگی",
+        "میان‌افزارها",
+        "Entity Framework Core",
+        "PostgreSQL",
+        "مفاهیم احراز هویت",
+        "تست‌نویسی",
+        "کش‌کردن",
+        "سرویس‌های پس‌زمینه"
+      ],
+      "lessons": [
+        {
+          "slug": "http",
+          "title": "سفر یک درخواست HTTP",
+          "description": "مسیر درخواست را از کاربر تا پایگاه داده دنبال کن.",
+          "duration": 20,
+          "concept": "http"
+        },
+        {
+          "slug": "di",
+          "title": "تزریق وابستگی",
+          "description": "عمر سرویس‌ها و اشتراک نمونه‌ها را تجربه کن.",
+          "duration": 18,
+          "concept": "di"
+        }
+      ]
+    },
+    {
+      "slug": "architecture",
+      "title": "فکر کردن مثل یک معمار",
+      "subtitle": "Software Architecture",
+      "description": "مسئله‌ها را بشکن، تصمیم‌ها را بسنج و سیستم‌های بهتر طراحی کن.",
+      "tag": "پیشرفته",
+      "color": "amber",
+      "icon": "layers",
+      "modules": [
+        "اصول SOLID",
+        "الگوهای طراحی",
+        "معماری تمیز",
+        "لایه‌های برنامه",
+        "راهبردهای کش",
+        "پیام‌رسانی",
+        "هم‌زمانی",
+        "میکروسرویس‌ها",
+        "سیستم‌های توزیع‌شده",
+        "طراحی سیستم"
+      ],
+      "lessons": []
+    }
+  ],
+  "lessons": {
+    "variables": {
+      "title": "متغیر چیست؟",
+      "concept": "variables",
+      "duration": 12,
+      "intro": "برنامه‌ها با داده کار می‌کنند؛ نام کاربر، امتیاز بازی یا تعداد سفارش‌ها. متغیر به ما اجازه می‌دهد یک مقدار را با نامی روشن نگه داریم و بعد دوباره از آن استفاده کنیم.",
+      "analogy": "یک جعبهٔ برچسب‌دار را تصور کن. برچسب، نام متغیر است و چیزی که داخل جعبه می‌گذاری، مقدار آن. این تشبیه برای فهم مفهوم است و نمایش واقعی حافظهٔ دات‌نت نیست.",
+      "objectives": [
+        "تشخیص نام، نوع و مقدار یک متغیر",
+        "درک جایگزینی مقدار قبلی",
+        "خواندن تعریف یک متغیر در سی‌شارپ"
+      ],
+      "experiment": "نام متغیر را تغییر بده. سپس با دکمهٔ مثبت و منفی، مقدار آن را عوض کن. ببین کد زیر مدل چطور همراه تغییرها به‌روز می‌شود.",
+      "code": "int score = 42;\nscore = score + 8;\nConsole.WriteLine(score);",
+      "output": [
+        "50"
+      ],
+      "question": "بعد از اجرای این کد، مقدار score چیست؟",
+      "choices": [
+        "۴۲؛ مقدار اولیه همیشه ثابت می‌ماند",
+        "۵۰؛ مقدار جدید جای مقدار قبلی را می‌گیرد",
+        "۸؛ فقط آخرین عدد ذخیره می‌شود"
+      ],
+      "answer": 1,
+      "hint": "ابتدا مقدار قبلی را بخوان، ۸ را به آن اضافه کن و نتیجه را دوباره در همان متغیر بگذار.",
+      "explanation": "ابتدا مقدار ۴۲ ذخیره می‌شود. انتساب بعدی مقدار ۵۰ را محاسبه می‌کند و جای مقدار قبلی می‌گذارد."
+    },
+    "references": {
+      "title": "مقدار یا ارجاع؟",
+      "concept": "references",
+      "duration": 18,
+      "intro": "دو متغیر ممکن است داده‌های مستقلی داشته باشند، یا هر دو به یک شیء اشاره کنند. برای فهم اثر یک تغییر، اول باید بدانیم چه چیزی کپی شده است: خود داده یا ارجاع به شیء.",
+      "analogy": "دو برگه با یک آدرس مشترک، به یک خانه اشاره می‌کنند. عوض‌کردن رنگ آن خانه، از هر دو آدرس به یک نتیجه می‌رسد؛ اما دو خانه با آدرس جدا، مستقل‌اند.",
+      "objectives": [
+        "تشخیص هویت شیء از نام متغیر",
+        "دنبال‌کردن ارجاع مشترک",
+        "تفاوت تغییر شیء و ساخت شیء جدید"
+      ],
+      "experiment": "در حالت ارجاع مشترک، مقدار شیء اول را زیاد کن. بعد دو شیء مستقل را انتخاب کن و دوباره همان تغییر را انجام بده. چه چیزی عوض می‌شود؟",
+      "code": "var first = new int[] { 10 };\nvar second = first;\nfirst[0] = 20;\nConsole.WriteLine(second[0]);",
+      "output": [
+        "20"
+      ],
+      "question": "چرا مقدار خوانده‌شده از second برابر ۲۰ است؟",
+      "choices": [
+        "چون هر آرایه‌ای مقدار ۲۰ دارد",
+        "چون مقدار ۱۰ در همهٔ متغیرها تغییر می‌کند",
+        "چون هر دو متغیر به همان آرایه اشاره می‌کنند"
+      ],
+      "answer": 2,
+      "hint": "در خط دوم، آرایهٔ جدیدی ساخته نشده؛ فقط ارجاع موجود کپی شده است.",
+      "explanation": "هر دو متغیر، ارجاع به یک آرایه را نگه می‌دارند. تغییر عنصر آن آرایه از هر دو متغیر قابل مشاهده است. این قاعده را نباید به محل تخصیص همهٔ انواع در حافظه تعمیم داد."
+    },
+    "objects": {
+      "title": "کلاس‌ها و اشیا",
+      "concept": "objects",
+      "duration": 20,
+      "intro": "کلاس تعریف می‌کند یک نوع شیء چه داده و رفتاری دارد. شیء، یک نمونهٔ مشخص از آن تعریف است. دو ماشین از یک کلاس ساخته می‌شوند، ولی سرعت هر کدام مستقل است.",
+      "analogy": "نقشهٔ ساخت خودرو، خودِ خودرو نیست. از یک نقشه می‌توان چند خودرو ساخت که هر کدام رنگ، سرعت و هویت خودشان را دارند.",
+      "objectives": [
+        "شناخت تفاوت کلاس و نمونه",
+        "تغییر ویژگی یک شیء",
+        "درک استقلال وضعیت دو نمونه"
+      ],
+      "experiment": "یک ماشین تازه بساز. ماشین اول را انتخاب کن و گاز بده. سپس ماشین دوم را انتخاب کن؛ آیا سرعت آن هم تغییر کرده است؟",
+      "code": "var first = new Car();\nvar second = new Car();\nfirst.Speed = 40;\nConsole.WriteLine(second.Speed);\n\nclass Car\n{\n    public int Speed { get; set; } = 0;\n}",
+      "output": [
+        "0"
+      ],
+      "question": "بعد از تغییر سرعت ماشین اول، سرعت ماشین دوم چقدر است؟",
+      "choices": [
+        "۰؛ هر نمونه وضعیت مستقل دارد",
+        "۴۰؛ چون هر دو از یک کلاس هستند",
+        "۲۰؛ سرعت بین ماشین‌ها تقسیم می‌شود"
+      ],
+      "answer": 0,
+      "hint": "هر بار استفاده از new در این مثال، یک نمونهٔ تازه می‌سازد.",
+      "explanation": "دو بار ساخت شیء انجام شده است. هر نمونه مقدار ویژگی خودش را نگه می‌دارد؛ پس تغییر سرعت نمونهٔ اول روی نمونهٔ دوم اثری ندارد."
+    },
+    "loops": {
+      "title": "قدرت تکرار با حلقه‌ها",
+      "concept": "loops",
+      "duration": 15,
+      "intro": "وقتی یک کار چند بار تکرار می‌شود، لازم نیست همان دستور را چند بار بنویسیم. حلقه با یک مقدار شروع، یک شرط ادامه و یک تغییر در هر دور، تکرار را کنترل می‌کند.",
+      "analogy": "برای آبیاری پنج گلدان می‌گویی: از گلدان اول شروع کن؛ تا وقتی گلدانی باقی مانده، آب بده و به بعدی برو.",
+      "objectives": [
+        "دنبال‌کردن شمارندهٔ حلقه",
+        "خواندن شرط پایان",
+        "پیش‌بینی خروجی حلقه"
+      ],
+      "experiment": "تعداد تکرارها را تغییر بده و دکمهٔ پخش را بزن. هر خانه یک دور حلقه است. خروجی را با مقدار شمارنده مقایسه کن.",
+      "code": "for (int i = 0; i < 3; i++)\n{\n    Console.WriteLine(i);\n}",
+      "output": [
+        "0",
+        "1",
+        "2"
+      ],
+      "question": "این حلقه کدام عددها را چاپ می‌کند؟",
+      "choices": [
+        "۱، ۲، ۳",
+        "۰، ۱، ۲",
+        "۰، ۱، ۲، ۳"
+      ],
+      "answer": 1,
+      "hint": "شمارنده از صفر شروع می‌شود و شرط، کوچک‌تر بودن از ۳ است؛ نه کوچک‌تر یا مساوی.",
+      "explanation": "برای مقدارهای صفر، یک و دو، شرط درست است. پس از افزایش شمارنده به سه، شرط نادرست می‌شود و حلقه پایان می‌یابد."
+    },
+    "threads": {
+      "title": "نخ‌ها و هم‌زمانی",
+      "concept": "threads",
+      "duration": 22,
+      "intro": "نخ یک مسیر اجرای دستورهاست. هم‌زمانی یعنی چند کار بتوانند در یک بازه پیشرفت کنند. اجرای موازی یعنی واقعاً در یک لحظه، بیش از یک کار روی منابع پردازشی جدا اجرا شود.",
+      "analogy": "یک آشپز می‌تواند بین دو غذا جابه‌جا شود؛ این هم‌زمانی است. دو آشپز که واقعاً هم‌زمان کار می‌کنند، نمونه‌ای از اجرای موازی‌اند.",
+      "objectives": [
+        "تفکیک هم‌زمانی از اجرای موازی",
+        "مشاهدهٔ جابه‌جایی نخ‌ها",
+        "درک ساده‌شدن مدل زمان‌بندی"
+      ],
+      "experiment": "هر سه حالت را با دکمهٔ گام بعد مقایسه کن. در حالت هم‌زمان، هر گام فقط یکی از مسیرها را جلو می‌برد. در حالت موازی، هر دو پیش می‌روند.",
+      "code": "// Illustrative schedule on one CPU core:\n// A1 → B1 → A2 → B2\nConsole.WriteLine(\"Concurrent, not necessarily parallel\");",
+      "output": [
+        "Concurrent, not necessarily parallel"
+      ],
+      "question": "دو نخ روی یک هسته بین کارها جابه‌جا می‌شوند. این چه وضعیتی است؟",
+      "choices": [
+        "حتماً اجرای موازی است",
+        "هم‌زمانی است؛ لزوماً اجرای موازی نیست",
+        "هیچ دو کاری نمی‌توانند پیشرفت کنند"
+      ],
+      "answer": 1,
+      "hint": "به تفاوت «پیشرفت در یک بازه» و «اجرا دقیقاً در یک لحظه» فکر کن.",
+      "explanation": "یک هسته در هر لحظه یک مسیر را اجرا می‌کند، اما با جابه‌جایی می‌تواند چند کار را در یک بازه جلو ببرد. این مدل آموزشی، جزئیات واقعی زمان‌بند و تفاوت تسک و نخ را ساده کرده است."
+    },
+    "async": {
+      "title": "منتظر بمان، اما متوقف نشو",
+      "concept": "async",
+      "duration": 18,
+      "intro": "بخش زیادی از زمان یک برنامه صرف انتظار شبکه یا دیسک می‌شود. انتظار ناهمگام اجازه می‌دهد هنگام آماده‌نبودن نتیجه، مسیر اجرا آزاد شود و کار مستقل ادامه پیدا کند.",
+      "analogy": "وقتی غذا سفارش می‌دهی، لازم نیست کنار اجاق بی‌حرکت بمانی. می‌توانی کار دیگری انجام بدهی و وقتی غذا آماده شد، ادامه بدهی.",
+      "objectives": [
+        "شناخت انتظار عملیات ورودی/خروجی",
+        "درک ادامهٔ متد پس از انتظار",
+        "پرهیز از برابر دانستن انتظار و نخ جدید"
+      ],
+      "experiment": "پخش را شروع کن و دو نوار را دنبال کن. کار مستقل پیش از پاسخ شبکه تمام می‌شود. بعد از رسیدن پاسخ، ادامهٔ متد می‌تواند اجرا شود.",
+      "code": "Task<string> request = Task.FromResult(\"Ready\");\nConsole.WriteLine(\"Independent work\");\nstring result = await request;\nConsole.WriteLine(result);",
+      "output": [
+        "Independent work",
+        "Ready"
+      ],
+      "question": "کدام جمله دربارهٔ await درست است؟",
+      "choices": [
+        "همیشه یک نخ تازه می‌سازد",
+        "به‌خودی‌خود نخ تازه نمی‌سازد؛ ادامه به آماده‌شدن نتیجه وابسته است",
+        "همیشه دو دستور را موازی اجرا می‌کند"
+      ],
+      "answer": 1,
+      "hint": "انتظار یک نتیجه و ساختن منبع پردازشی جدید، دو موضوع متفاوت‌اند.",
+      "explanation": "اگر نتیجه آماده نباشد، ادامهٔ متد می‌تواند تعلیق شود. خودِ await تضمینی برای ساخت نخ جدید یا اجرای موازی نمی‌دهد. در نمونهٔ کد این درس، نتیجه از قبل آماده است."
+    },
+    "http": {
+      "title": "سفر یک درخواست HTTP",
+      "concept": "http",
+      "duration": 20,
+      "intro": "در یک برنامهٔ وب، درخواست از چند مسئولیت عبور می‌کند: دریافت، بررسی، منطق کسب‌وکار و دسترسی به داده. جداکردن این مسئولیت‌ها، فهم و آزمودن برنامه را آسان‌تر می‌کند.",
+      "analogy": "سفارش یک کافه از صندوق به باریستا می‌رسد و بعد به مشتری برمی‌گردد. هر بخش مسئول یک کار است؛ لازم نیست صندوق خودش قهوه درست کند.",
+      "objectives": [
+        "دنبال‌کردن مسیر یک درخواست",
+        "شناخت مسئولیت سرویس",
+        "درک پاسخ و وضعیت موفق"
+      ],
+      "experiment": "درخواست را گام‌به‌گام جلو ببر. مرحلهٔ فعال روشن می‌شود و در پایان، پاسخ نمونه را می‌بینی. این فقط یکی از ساختارهای ممکن برنامهٔ وب است.",
+      "code": "// Educational response fixture for GET /api/users\nvar response = \"200 OK\";\nConsole.WriteLine(response);\nConsole.WriteLine(\"Arman\");",
+      "output": [
+        "200 OK",
+        "Arman"
+      ],
+      "question": "در این معماری، کدام بخش منطق کسب‌وکار را نگه می‌دارد؟",
+      "choices": [
+        "مرورگر",
+        "سرویس",
+        "کد وضعیت پاسخ"
+      ],
+      "answer": 1,
+      "hint": "کنترلر دریافت و هدایت درخواست را انجام می‌دهد؛ بخش جداگانه‌ای مسئول تصمیم‌های کسب‌وکار است.",
+      "explanation": "در این مثال سرویس مسئول منطق کسب‌وکار است و مخزن، دسترسی به داده را جدا می‌کند. همهٔ برنامه‌ها مجبور نیستند دقیقاً همین لایه‌بندی را داشته باشند."
+    },
+    "di": {
+      "title": "تزریق وابستگی",
+      "concept": "di",
+      "duration": 18,
+      "intro": "یک کلاس برای انجام کارش به سرویس‌های دیگر نیاز دارد. به‌جای ساخت مستقیم آن‌ها، می‌توان وابستگی را از بیرون دریافت کرد. ظرف وابستگی‌ها ساخت و عمر این سرویس‌ها را مدیریت می‌کند.",
+      "analogy": "باریستا برای کار به دستگاه قهوه نیاز دارد، اما لازم نیست هر بار خودش یک دستگاه بسازد. کافه دستگاه مناسب را در اختیار او می‌گذارد.",
+      "objectives": [
+        "درک دریافت وابستگی از بیرون",
+        "مقایسهٔ سه طول عمر رایج",
+        "مشاهدهٔ هویت نمونه‌ها در درخواست‌ها"
+      ],
+      "experiment": "طول عمر را تغییر بده. ابتدا سرویس را در همان درخواست دوباره بگیر، سپس درخواست تازه بساز. به شمارهٔ نمونه دقت کن.",
+      "code": "// Scoped: same instance within one request\nConsole.WriteLine(\"Request 1: instance #1\");\nConsole.WriteLine(\"Request 1: instance #1\");\nConsole.WriteLine(\"Request 2: instance #2\");",
+      "output": [
+        "Request 1: instance #1",
+        "Request 1: instance #1",
+        "Request 2: instance #2"
+      ],
+      "question": "در یک محدودهٔ درخواست، چند بار یک سرویس Scoped دریافت می‌شود. چه رخ می‌دهد؟",
+      "choices": [
+        "هر بار نمونهٔ جدید ساخته می‌شود",
+        "همان نمونهٔ آن محدوده دوباره دریافت می‌شود",
+        "همیشه نمونهٔ درخواست قبلی استفاده می‌شود"
+      ],
+      "answer": 1,
+      "hint": "طول عمر Scoped را با محدودهٔ جاری مرتبط کن؛ در وب، معمولاً یک درخواست یک محدوده می‌سازد.",
+      "explanation": "سرویس با طول عمر Scoped در همان محدوده دوباره استفاده می‌شود. یک محدودهٔ تازه، نمونهٔ دیگری می‌گیرد. این با Singleton و Transient متفاوت است."
+    }
+  },
+  "challenges": [
+    {
+      "slug": "variable-assignment",
+      "title": "جعبه‌های جادویی",
+      "subtitle": "متغیرها و انتساب",
+      "description": "مقدار متغیرها را پس از هر تغییر دنبال کن؛ پیش‌بینی تو از خروجی چیست؟",
+      "difficulty": "beginner",
+      "duration": 5,
+      "concept": "variables",
+      "course": "csharp",
+      "hint": "دستور انتساب، مقدار سمت راست را در متغیر سمت چپ قرار می‌دهد. برای int، کپیِ مقدار مستقل است.",
+      "questions": [
+        {
+          "id": "assign",
+          "prompt": "مقدار نهایی score چند است؟",
+          "code": "int score = 10;\nscore = score + 5;\nscore = score * 2;",
+          "options": [
+            {
+              "id": "15",
+              "label": "15"
+            },
+            {
+              "id": "25",
+              "label": "25"
+            },
+            {
+              "id": "30",
+              "label": "30"
+            },
+            {
+              "id": "20",
+              "label": "20"
+            }
+          ],
+          "correctOption": "30",
+          "explanation": "ابتدا مقدار ۱۰ به ۱۵ می‌رسد، سپس ۱۵ در ۲ ضرب می‌شود؛ نتیجه ۳۰ است."
+        },
+        {
+          "id": "copy",
+          "prompt": "بعد از تغییر a، مقدار b چیست؟",
+          "code": "int a = 7;\nint b = a;\na = 12;\nConsole.WriteLine(b);",
+          "options": [
+            {
+              "id": "12",
+              "label": "12"
+            },
+            {
+              "id": "7",
+              "label": "7"
+            },
+            {
+              "id": "0",
+              "label": "0"
+            },
+            {
+              "id": "error",
+              "label": "خطا رخ می‌دهد"
+            }
+          ],
+          "correctOption": "7",
+          "explanation": "نوع int مقداری است. متغیر b کپی مستقلِ عدد ۷ را دارد و با تغییر a عوض نمی‌شود."
+        },
+        {
+          "id": "increment",
+          "prompt": "این برنامه چه عددی چاپ می‌کند؟",
+          "code": "int count = 2;\ncount++;\ncount += 4;\nConsole.WriteLine(count);",
+          "options": [
+            {
+              "id": "6",
+              "label": "6"
+            },
+            {
+              "id": "8",
+              "label": "8"
+            },
+            {
+              "id": "3",
+              "label": "3"
+            },
+            {
+              "id": "7",
+              "label": "7"
+            }
+          ],
+          "correctOption": "7",
+          "explanation": "عملگر ++ یک واحد اضافه می‌کند؛ سپس ۴ واحد اضافه می‌شود. حاصل ۲ + ۱ + ۴ برابر ۷ است."
+        }
+      ]
+    },
+    {
+      "slug": "loop-detective",
+      "title": "کارآگاه حلقه‌ها",
+      "subtitle": "تکرار و شرط پایان",
+      "description": "رد اجرای حلقه را بگیر و تعداد تکرارها و خروجی نهایی را پیدا کن.",
+      "difficulty": "beginner",
+      "duration": 8,
+      "concept": "loops",
+      "course": "csharp",
+      "hint": "در حلقهٔ for، ابتدا مقداردهی انجام می‌شود. پیش از هر دور، شرط بررسی می‌شود و در پایان هر دور، گام افزایش اجرا می‌شود.",
+      "questions": [
+        {
+          "id": "iterations",
+          "prompt": "دستور داخل حلقه چند بار اجرا می‌شود؟",
+          "code": "for (int i = 0; i < 4; i++)\n{\n    Console.WriteLine(i);\n}",
+          "options": [
+            {
+              "id": "3",
+              "label": "3"
+            },
+            {
+              "id": "4",
+              "label": "4"
+            },
+            {
+              "id": "5",
+              "label": "5"
+            },
+            {
+              "id": "0",
+              "label": "0"
+            }
+          ],
+          "correctOption": "4",
+          "explanation": "مقدار i به‌ترتیب ۰، ۱، ۲ و ۳ است. وقتی به ۴ می‌رسد، شرط برقرار نیست."
+        },
+        {
+          "id": "sum",
+          "prompt": "مقدار نهایی sum چیست؟",
+          "code": "int sum = 0;\nfor (int i = 1; i <= 3; i++)\n{\n    sum += i;\n}",
+          "options": [
+            {
+              "id": "3",
+              "label": "3"
+            },
+            {
+              "id": "5",
+              "label": "5"
+            },
+            {
+              "id": "6",
+              "label": "6"
+            },
+            {
+              "id": "9",
+              "label": "9"
+            }
+          ],
+          "correctOption": "6",
+          "explanation": "اعداد ۱، ۲ و ۳ به sum اضافه می‌شوند؛ ۱ + ۲ + ۳ برابر ۶ است."
+        },
+        {
+          "id": "break",
+          "prompt": "کدام خروجی چاپ می‌شود؟",
+          "code": "for (int i = 1; i <= 5; i++)\n{\n    if (i == 3) break;\n    Console.Write(i + \" \");\n}",
+          "options": [
+            {
+              "id": "12345",
+              "label": "1 2 3 4 5"
+            },
+            {
+              "id": "123",
+              "label": "1 2 3"
+            },
+            {
+              "id": "12",
+              "label": "1 2"
+            },
+            {
+              "id": "1245",
+              "label": "1 2 4 5"
+            }
+          ],
+          "correctOption": "12",
+          "explanation": "با رسیدن i به ۳، دستور break قبل از چاپ اجرا می‌شود و حلقه پایان می‌یابد."
+        }
+      ]
+    },
+    {
+      "slug": "method-builder",
+      "title": "یک ورودی، یک خروجی",
+      "subtitle": "متدها و بازگشت مقدار",
+      "description": "جریان ورود و خروج از متد را دنبال کن و رفتار توابع کوچک را پیش‌بینی کن.",
+      "difficulty": "beginner",
+      "duration": 7,
+      "concept": "variables",
+      "course": "csharp",
+      "hint": "پارامترهای int با مقدار ارسال می‌شوند. عبارت return اجرای همان متد را پایان می‌دهد و نتیجه را به محل فراخوانی برمی‌گرداند.",
+      "questions": [
+        {
+          "id": "return",
+          "prompt": "خروجی کدام است؟",
+          "code": "int Double(int value)\n{\n    return value * 2;\n}\nConsole.WriteLine(Double(6));",
+          "options": [
+            {
+              "id": "6",
+              "label": "6"
+            },
+            {
+              "id": "12",
+              "label": "12"
+            },
+            {
+              "id": "8",
+              "label": "8"
+            },
+            {
+              "id": "36",
+              "label": "36"
+            }
+          ],
+          "correctOption": "12",
+          "explanation": "مقدار ۶ وارد پارامتر value می‌شود. متد حاصل ۶ × ۲ را برمی‌گرداند."
+        },
+        {
+          "id": "parameter",
+          "prompt": "عدد نهاییِ چاپ‌شده چیست؟",
+          "code": "void Change(int value)\n{\n    value = 99;\n}\nint number = 5;\nChange(number);\nConsole.WriteLine(number);",
+          "options": [
+            {
+              "id": "99",
+              "label": "99"
+            },
+            {
+              "id": "5",
+              "label": "5"
+            },
+            {
+              "id": "0",
+              "label": "0"
+            },
+            {
+              "id": "104",
+              "label": "104"
+            }
+          ],
+          "correctOption": "5",
+          "explanation": "پارامتر value کپی عدد ۵ است. تغییر آن روی متغیر number اثر نمی‌گذارد."
+        },
+        {
+          "id": "compose",
+          "prompt": "نتیجهٔ ترکیب این فراخوانی‌ها چیست؟",
+          "code": "int Add(int a, int b) => a + b;\nint result = Add(Add(2, 3), 4);\nConsole.WriteLine(result);",
+          "options": [
+            {
+              "id": "5",
+              "label": "5"
+            },
+            {
+              "id": "7",
+              "label": "7"
+            },
+            {
+              "id": "9",
+              "label": "9"
+            },
+            {
+              "id": "24",
+              "label": "24"
+            }
+          ],
+          "correctOption": "9",
+          "explanation": "ابتدا فراخوانی داخلی ۵ را برمی‌گرداند. سپس Add(5, 4) برابر ۹ می‌شود."
+        }
+      ]
+    },
+    {
+      "slug": "object-garage",
+      "title": "گاراژ شیءگرا",
+      "subtitle": "کلاس، نمونه و ارجاع",
+      "description": "دو ماشین، یک نقشه؛ تفاوت نمونهٔ مستقل و ارجاع مشترک را کشف کن.",
+      "difficulty": "intermediate",
+      "duration": 10,
+      "concept": "objects",
+      "course": "csharp",
+      "hint": "کلاس یک نوع ارجاعی است. انتساب یک متغیر کلاس به دیگری، همان ارجاع را کپی می‌کند؛ اما هر new یک نمونهٔ مستقل می‌سازد.",
+      "questions": [
+        {
+          "id": "independent",
+          "prompt": "سرعت blue در پایان چند است؟",
+          "code": "var red = new Car { Speed = 10 };\nvar blue = new Car { Speed = 20 };\nred.Speed = 50;",
+          "options": [
+            {
+              "id": "10",
+              "label": "10"
+            },
+            {
+              "id": "20",
+              "label": "20"
+            },
+            {
+              "id": "50",
+              "label": "50"
+            },
+            {
+              "id": "0",
+              "label": "0"
+            }
+          ],
+          "correctOption": "20",
+          "explanation": "دو دستور new دو نمونهٔ مستقل می‌سازند. تغییر red روی blue اثری ندارد."
+        },
+        {
+          "id": "reference",
+          "prompt": "سرعت first پس از این تغییر چیست؟",
+          "code": "var first = new Car { Speed = 10 };\nvar second = first;\nsecond.Speed = 40;",
+          "options": [
+            {
+              "id": "10",
+              "label": "10"
+            },
+            {
+              "id": "20",
+              "label": "20"
+            },
+            {
+              "id": "40",
+              "label": "40"
+            },
+            {
+              "id": "null",
+              "label": "null"
+            }
+          ],
+          "correctOption": "40",
+          "explanation": "هر دو متغیر به یک شیء اشاره می‌کنند. تغییر Speed از طریق second در همان شیء اعمال می‌شود."
+        },
+        {
+          "id": "identity",
+          "prompt": "کدام گزاره دربارهٔ این دو متغیر درست است؟",
+          "code": "var a = new Car { Speed = 10 };\nvar b = new Car { Speed = 10 };",
+          "options": [
+            {
+              "id": "same",
+              "label": "هر دو به یک شیء اشاره می‌کنند"
+            },
+            {
+              "id": "independent",
+              "label": "دو شیء مستقل با مقدار برابرند"
+            },
+            {
+              "id": "invalid",
+              "label": "ساخت دو شیء از یک کلاس خطاست"
+            },
+            {
+              "id": "value",
+              "label": "متغیر b به‌صورت خودکار کپی a است"
+            }
+          ],
+          "correctOption": "independent",
+          "explanation": "برابر بودن مقادیر خصوصیات، به معنای یکی بودن هویت اشیا نیست. هر new یک نمونهٔ تازه می‌سازد."
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "Program.cs",
+      "content": "using MyFirstApi.Services;\n\nvar builder = WebApplication.CreateBuilder(args);\n\nbuilder.Services.AddControllers();\nbuilder.Services.AddScoped<IUserService, UserService>();\n\nvar app = builder.Build();\n\napp.UseHttpsRedirection();\napp.MapControllers();\n\napp.Run();"
+    },
+    {
+      "path": "Controllers/UsersController.cs",
+      "content": "using Microsoft.AspNetCore.Mvc;\nusing MyFirstApi.Models;\nusing MyFirstApi.Services;\n\nnamespace MyFirstApi.Controllers;\n\n[ApiController]\n[Route(\"api/users\")]\npublic class UsersController(IUserService users) : ControllerBase\n{\n    [HttpGet]\n    public ActionResult<IEnumerable<User>> GetAll()\n    {\n        return Ok(users.GetAll());\n    }\n\n    [HttpGet(\"{id:int}\")]\n    public ActionResult<User> GetById(int id)\n    {\n        var user = users.GetById(id);\n        return user is null ? NotFound() : Ok(user);\n    }\n}"
+    },
+    {
+      "path": "Services/IUserService.cs",
+      "content": "using MyFirstApi.Models;\n\nnamespace MyFirstApi.Services;\n\npublic interface IUserService\n{\n    IReadOnlyList<User> GetAll();\n    User? GetById(int id);\n}"
+    },
+    {
+      "path": "Services/UserService.cs",
+      "content": "using MyFirstApi.Models;\n\nnamespace MyFirstApi.Services;\n\npublic class UserService : IUserService\n{\n    private readonly List<User> _users =\n    [\n        new User(1, \"Arman\", \"arman@example.com\"),\n        new User(2, \"Sara\", \"sara@example.com\")\n    ];\n\n    public IReadOnlyList<User> GetAll() => _users;\n\n    public User? GetById(int id) =>\n        _users.FirstOrDefault(user => user.Id == id);\n}"
+    },
+    {
+      "path": "Models/User.cs",
+      "content": "namespace MyFirstApi.Models;\n\npublic record User(\n    int Id,\n    string Name,\n    string Email\n);"
+    },
+    {
+      "path": "appsettings.json",
+      "content": "{\n  \"Logging\": {\n    \"LogLevel\": {\n      \"Default\": \"Information\",\n      \"Microsoft.AspNetCore\": \"Warning\"\n    }\n  },\n  \"AllowedHosts\": \"*\"\n}"
+    },
+    {
+      "path": "MyFirstApi.csproj",
+      "content": "<Project Sdk=\"Microsoft.NET.Sdk.Web\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n    <Nullable>enable</Nullable>\n    <ImplicitUsings>enable</ImplicitUsings>\n  </PropertyGroup>\n</Project>"
+    }
+  ],
+  "labs": [
+    {
+      "slug": "variables",
+      "title": "متغیرها",
+      "subtitle": "یک نام، یک نوع، یک مقدار",
+      "category": "مبانی",
+      "description": "مقدارها را تغییر بده و ارتباط بین نام، نوع و داده را ببین.",
+      "color": "purple"
+    },
+    {
+      "slug": "references",
+      "title": "مقدار و ارجاع",
+      "subtitle": "کپی داده یا اشتراک یک شیء؟",
+      "category": "مبانی",
+      "description": "دو متغیر را به یک شیء متصل کن و اثر تغییر آن را دنبال کن.",
+      "color": "cyan"
+    },
+    {
+      "slug": "objects",
+      "title": "کلاس‌ها و اشیا",
+      "subtitle": "یک نقشه، چند دنیای مستقل",
+      "category": "شیءگرایی",
+      "description": "ماشین بساز، سرعتش را تغییر بده و استقلال اشیا را تجربه کن.",
+      "color": "amber"
+    },
+    {
+      "slug": "oop",
+      "title": "چندریختی",
+      "subtitle": "یک قرارداد، رفتارهای متفاوت",
+      "category": "شیءگرایی",
+      "description": "یک متد مشترک را روی اشیای متفاوت فراخوانی کن.",
+      "color": "purple"
+    },
+    {
+      "slug": "threads",
+      "title": "نخ‌ها و هم‌زمانی",
+      "subtitle": "چند مسیر برای انجام کار",
+      "category": "پیشرفته",
+      "description": "تفاوت اجرای ترتیبی، هم‌زمان و موازی را قدم‌به‌قدم کشف کن.",
+      "color": "cyan"
+    },
+    {
+      "slug": "async",
+      "title": "انتظار ناهمگام",
+      "subtitle": "منتظر بمان، اما متوقف نشو",
+      "category": "پیشرفته",
+      "description": "در زمان انتظار شبکه، کار مستقل را ادامه بده.",
+      "color": "amber"
+    },
+    {
+      "slug": "http",
+      "title": "سفر یک درخواست",
+      "subtitle": "از مرورگر تا پایگاه داده",
+      "category": "بک‌اند",
+      "description": "درخواست را از هر لایه عبور بده و پاسخ آن را بررسی کن.",
+      "color": "cyan"
+    },
+    {
+      "slug": "di",
+      "title": "تزریق وابستگی",
+      "subtitle": "چه کسی سرویس را می‌سازد؟",
+      "category": "بک‌اند",
+      "description": "عمر سرویس‌ها را عوض کن و استفادهٔ دوباره از نمونه‌ها را ببین.",
+      "color": "purple"
+    },
+    {
+      "slug": "transactions",
+      "title": "تراکنش‌ها",
+      "subtitle": "همهٔ تغییرها، یا هیچ‌کدام",
+      "category": "بک‌اند",
+      "description": "انتقال اعتبار را ثبت کن یا همهٔ تغییرها را برگردان.",
+      "color": "green"
+    }
+  ]
+}

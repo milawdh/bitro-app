@@ -1,0 +1,73 @@
+import {expect,test} from '@playwright/test';
+
+test('creates, orders, publishes and archives a course with persisted local data',async({page})=>{
+  await page.goto('/courses/new');
+  await page.getByRole('button',{name:'انتشار در پیش‌نمایش',exact:true}).click();
+  await expect(page.locator('.cm-form-error')).toContainText('عنوان');
+  await page.getByRole('textbox',{name:'عنوان دوره',exact:true}).fill('دورهٔ تست رابط');
+  await page.getByRole('textbox',{name:'عنوان انگلیسی دوره',exact:true}).fill('UI Testing');
+  await page.getByRole('textbox',{name:'شناسهٔ مسیر دوره',exact:true}).fill('ui-testing');
+  await page.getByRole('textbox',{name:'توضیح دوره',exact:true}).fill('مسیر کوچک برای تمرین تست رابط و سنجش تعامل‌ها.');
+  await page.getByRole('textbox',{name:'عنوان فصل 1',exact:true}).fill('فصل شروع');
+  await page.getByRole('button',{name:'افزودن فصل',exact:true}).click();
+  await page.getByRole('textbox',{name:'عنوان فصل 2',exact:true}).fill('فصل تمرین');
+  await page.getByRole('button',{name:'بالا بردن فصل 2',exact:true}).click();
+  await expect(page.getByRole('textbox',{name:'عنوان فصل 1',exact:true})).toHaveValue('فصل تمرین');
+  await page.getByRole('button',{name:'ذخیرهٔ تغییرات',exact:true}).click();
+  await expect(page).toHaveURL(/\/courses\/course-/);
+  await page.reload();
+  await expect(page.getByRole('textbox',{name:'عنوان دوره',exact:true})).toHaveValue('دورهٔ تست رابط');
+  await expect(page.getByRole('textbox',{name:'عنوان فصل 1',exact:true})).toHaveValue('فصل تمرین');
+  await page.getByRole('button',{name:'انتشار در پیش‌نمایش',exact:true}).click();
+  await expect(page.locator('.cm-header-actions .status-badge')).toContainText('منتشرشده');
+  await page.goto('/courses');
+  await page.getByRole('textbox',{name:'جست‌وجوی جدول',exact:true}).fill('ui-testing');
+  await expect(page.locator('tbody tr')).toHaveCount(1);
+  await page.locator('tbody input[type="checkbox"]').check();
+  await page.getByRole('button',{name:'بایگانی دوره‌ها',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'بایگانی دوره‌ها',exact:true}).click();
+  await expect(page.locator('tbody tr')).toContainText('بایگانی‌شده');
+});
+
+test('authored lesson publishing is validated and saves the full educational content',async({page})=>{
+  await page.goto('/lessons/new?course=csharp');
+  await page.getByRole('textbox',{name:'عنوان درس',exact:true}).fill('یک شمارندهٔ کوچک');
+  await page.getByRole('textbox',{name:'توضیح کوتاه درس',exact:true}).fill('انتساب یک مقدار ساده و مشاهدهٔ خروجی آموزشی آن.');
+  await page.getByRole('textbox',{name:'شناسهٔ مسیر درس',exact:true}).fill('small-counter');
+  await page.getByRole('button',{name:'ذخیرهٔ تغییرات',exact:true}).click();
+  await expect(page).toHaveURL(/\/lessons\/lesson-/);
+  await page.getByRole('button',{name:'انتشار در پیش‌نمایش',exact:true}).click();
+  await expect(page.locator('.cm-form-error')).toBeVisible();
+  await page.getByRole('tab',{name:'محتوای آموزشی',exact:true}).click();
+  await page.getByRole('textbox',{name:'توضیح اصلی مفهوم',exact:true}).fill('متغیر یک مقدار را با نامی مشخص نگه می‌دارد.');
+  await page.getByRole('textbox',{name:'تشبیه آموزشی',exact:true}).fill('مثل یک جعبهٔ برچسب‌دار برای نگه‌داشتن مقدار.');
+  await page.getByRole('textbox',{name:'هدف‌های یادگیری',exact:true}).fill('تشخیص نام متغیر\nخواندن مقدار اولیه');
+  await page.getByRole('tab',{name:'آزمایش و کد',exact:true}).click();
+  await page.getByRole('textbox',{name:'دستورالعمل آزمایش',exact:true}).fill('مقدار را تغییر بده و کد نمونه را مقایسه کن.');
+  const editor=page.locator('.monaco-editor [role="textbox"]').first();
+  await expect(editor).toBeAttached();await editor.focus();await editor.press('ControlOrMeta+a');await editor.pressSequentially('int count = 2;');
+  await page.getByRole('textbox',{name:'خروجی نمونه',exact:true}).fill('2');
+  await page.getByRole('tab',{name:'سنجش یادگیری',exact:true}).click();
+  await page.getByRole('textbox',{name:'پرسش سنجش',exact:true}).fill('مقدار count چیست؟');
+  await page.getByRole('textbox',{name:'متن گزینهٔ 1',exact:true}).fill('۲');
+  await page.getByRole('textbox',{name:'متن گزینهٔ 2',exact:true}).fill('۴');
+  await page.locator('.cm-correct-choice').first().click();
+  await page.getByRole('textbox',{name:'راهنمای پاسخ',exact:true}).fill('به سمت راست انتساب نگاه کن.');
+  await page.getByRole('textbox',{name:'توضیح پاسخ صحیح',exact:true}).fill('مقدار ۲ در متغیر count ذخیره شده است.');
+  await page.getByRole('button',{name:'انتشار در پیش‌نمایش',exact:true}).click();
+  await expect(page.locator('.cm-header-actions .status-badge')).toContainText('منتشرشده');
+  await page.reload();
+  await expect(page.getByRole('textbox',{name:'عنوان درس',exact:true})).toHaveValue('یک شمارندهٔ کوچک');
+  const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('bitro-admin-data-v1')??'{}').state.lessons.find((lesson:{slug:string})=>lesson.slug==='small-counter'));
+  expect(record).toMatchObject({status:'published',intro:'متغیر یک مقدار را با نامی مشخص نگه می‌دارد.',code:'int count = 2;',output:['2'],answer:0});
+});
+
+test('module dependency guards and lesson ordering preserve course structure',async({page})=>{
+  await page.goto('/courses/csharp');
+  const moduleBlock=page.locator('.cm-module-block').filter({hasText:'متغیر چیست؟'});
+  await expect(moduleBlock.getByRole('button',{name:'حذف فصل 2',exact:true})).toBeDisabled();
+  await page.getByRole('button',{name:'پایین بردن درس متغیر چیست؟',exact:true}).click();
+  await expect(moduleBlock.locator('.cm-module-lesson > a').first()).toContainText('مقدار یا ارجاع؟');
+  await page.reload();
+  await expect(page.locator('.cm-module-block').filter({hasText:'متغیر چیست؟'}).locator('.cm-module-lesson > a').first()).toContainText('مقدار یا ارجاع؟');
+});

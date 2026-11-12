@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="admin-skeleton" aria-label="در حال آماده‌سازی صفحه" role="status"><div/><div/><section><span/><span/><span/><span/></section><article/></div>;}

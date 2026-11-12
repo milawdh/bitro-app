@@ -1,46 +1,76 @@
-# BitroLearn
+﻿# بیترو‌لرن
 
-An interactive Persian programming education frontend built with Next.js App Router, React, strict TypeScript, Tailwind CSS, Zustand, Motion, Radix and Monaco Editor.
+این مخزن شامل دو فرانت مستقل برای یادگیرنده و مدیریت محصول است. پوشهٔ بک‌اند فعلاً خالی است.
 
-## Run with Docker
+```text
+bitro-app/
+├── app/       # فرانت یادگیرنده
+├── admin/     # استودیوی مدیریت
+├── backend/   # خالی
+├── compose.yaml
+└── README.md
+```
+
+## اجرای داکر
+
+از روت مخزن اجرا کنید:
 
 ```sh
 docker compose up --build -d
+docker compose ps
 ```
 
-Open http://localhost:3000 for the introduction or http://localhost:3000/dashboard for the learning dashboard.
+- نشانی اپ: http://localhost:3000
+- نشانی ادمین: http://localhost:3001
+- نام کانتینر اپ: `bitro-frontend`
+- نام کانتینر ادمین: `bitro-admin`
+
+هر دو فرانت با ساخت تولیدی، کاربر غیرریشه و بررسی سلامت اجرا می‌شوند. فایل هماهنگی نام سرویس قبلی اپ را حفظ می‌کند و سایر سرویس‌های موجود روی سیستم را مدیریت نمی‌کند.
 
 ```sh
+docker compose logs -f admin
 docker compose logs -f frontend
 docker compose down
 ```
 
-The Compose project is named `bitro-frontend` and runs independently of other BitroLearn services.
+## توسعه و بررسی
 
-## Develop locally
+برای توسعهٔ اپ:
 
 ```sh
+cd app
 npm ci
 npm run dev
 ```
 
-All fonts and Monaco assets are hosted locally. The postinstall script copies Monaco's assets into `public/monaco`.
+برای توسعهٔ ادمین، در ترمینال جداگانه:
 
-## Verify
+```sh
+cd admin
+npm ci
+npm run dev -- --port 3001
+```
+
+هر فرانت فایل بسته‌ها، فایل قفل، سورس، منابع و تست‌های مستقل دارد. فونت‌ها و منابع ویرایشگر کد محلی هستند و به سرویس پولی یا کلید دسترسی نیاز ندارند.
+
+برای بررسی، در پوشهٔ هر فرانت اجرا کنید:
 
 ```sh
 npm run typecheck
 npm run lint
-npm test
+npm test -- --maxWorkers=2
 npm run build
-# With the app running on port 3000 and Chrome installed:
 npm run test:e2e
 ```
 
-## Product scope
+تست مرورگر به اجرای هر دو فرانت و نصب مرورگر کروم نیاز دارد. ساخت داکر نیز بررسی نوع‌ها، بررسی کد و تست‌های منطقی همان فرانت را اجرا می‌کند.
 
-This is a frontend-only MVP. Account sessions, progress, settings, lesson checkpoints and project files are stored in this browser's localStorage. No database or authentication service is required. The IDE runs explicitly labeled educational simulations, with supported deterministic C# fixtures. Editing an example outside the supported fixture returns a clear unsupported-code diagnostic rather than claiming actual compilation. Project terminal/API responses and challenge validation are deterministic local demonstrations.
+## مرز نسخهٔ نمایشی
 
-The application includes a marketing page, local onboarding, dashboard, three curriculum paths, eight authored lessons, nine interactive concept labs, code playground, four structured challenges, a multi-file .NET project, progress, profile, and settings. Unauthored curriculum modules are labeled planned rather than presented as working lessons.
+فضای ادمین شامل داشبورد، مدیریت دوره و درس، آزمایشگاه‌های موجود، چالش‌ها، قالب پروژه، یادگیرنده‌ها، گزارش‌ها، تنظیمات و ورود آزمایشی است. داده‌های اولیه از محتوای فعلی اپ گرفته شده‌اند و آمار کاربران، دادهٔ نمونه است.
 
-Providers and simulation logic live separately from React views so real services can replace them later.
+ذخیرهٔ ادمین با پیشوند `bitro-admin-*` از ذخیرهٔ اپ مستقل است. انتشار، تعلیق کاربر و تغییر نقش در این نسخه فقط در پیش‌نمایش ادمین اثر دارد؛ اتصال به اپ، احراز هویت واقعی و پایگاه داده پیاده نشده‌اند.
+
+بازنشانی ادمین، محتوا و داده‌های نمونه و پیش‌نویس‌های آن را بازیابی می‌کند و تنظیمات شخصی پنل را نگه می‌دارد. این عملیات اطلاعات یا پیشرفت اپ را تغییر نمی‌دهد.
+
+پوشهٔ بک‌اند عمداً هیچ فایلی ندارد؛ گیت پوشهٔ خالی را ثبت نمی‌کند.

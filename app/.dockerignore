@@ -1,0 +1,10 @@
+node_modules
+.pnpm-store
+.next
+.git
+public/monaco
+test-results
+playwright-report
+artifacts
+*.tsbuildinfo
+.env*

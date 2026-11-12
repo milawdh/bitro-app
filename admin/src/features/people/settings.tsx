@@ -1,0 +1,35 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import { Bell, Check, CheckCheck, Database, Mail, Moon, RotateCcw, Save, Settings2, ShieldCheck, Sparkles, Sun, UserRound } from 'lucide-react';
+import { ConfirmDialog, Field, PageHeader } from '@/components/ui';
+import { useAdminStore } from '@/stores/admin-store';
+import type { AdminSettings } from '@/lib/types';
+import './people.css';
+
+export function SettingsPage() {
+  const settings = useAdminStore((state) => state.settings), updateSettings = useAdminStore((state) => state.updateSettings), resetData = useAdminStore((state) => state.resetData), notify = useAdminStore((state) => state.notify);
+  const [draft, setDraft] = useState<Partial<AdminSettings>>({}), [errors, setErrors] = useState<Record<string, string>>({}), [saved, setSaved] = useState(false), [reset, setReset] = useState(false);
+  const form = { ...settings, ...draft };
+  const change = (patch: Partial<AdminSettings>) => { setDraft((previous) => ({ ...previous, ...patch })); setSaved(false); setErrors({}); };
+  function save(event: FormEvent) {
+    event.preventDefault(); const next = { ...form, workspaceName: form.workspaceName.trim(), adminName: form.adminName.trim(), email: form.email.trim() };
+    const nextErrors: Record<string, string> = {};
+    if (next.workspaceName.length < 2) nextErrors.workspaceName = 'نام فضای مدیریت باید حداقل دو حرف داشته باشد.';
+    if (next.adminName.length < 2) nextErrors.adminName = 'نام نمایشی را با حداقل دو حرف بنویس.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email)) nextErrors.email = 'یک ایمیل معتبر وارد کن.';
+    if (Object.keys(nextErrors).length) { setErrors(nextErrors); return; }
+    const result = updateSettings(next);
+    if (!result.ok) { setErrors(result.errors ?? { form: result.error ?? 'تغییرات ذخیره نشد.' }); return; }
+    setDraft({}); setSaved(true); notify('تنظیمات فضای مدیریت ذخیره شد.');
+  }
+  function resetAdmin() { resetData(); setDraft({}); setErrors({}); setSaved(false); setReset(false); notify('داده‌های نمایشی ادمین به حالت اولیه برگشت.'); }
+  return <div className="people-page"><PageHeader eyebrow="فضای مدیریت، به سلیقهٔ تو" title="تنظیمات پنل" description="هویت فضای کار، ظاهر برنامه و ترجیح‌های مدیریت محتوا." action={<span className="badge"><ShieldCheck size={14} />ذخیره در همین مرورگر</span>} />
+    <div className="people-settings-layout"><form onSubmit={save} className="panel people-settings-form"><div className="people-settings-section-head"><span className="people-panel-icon"><UserRound size={23} /></span><div><h2>هویت فضای کار</h2><p className="muted">نام‌هایی که در پنل و تاریخچهٔ فعالیت دیده می‌شوند.</p></div></div><div className="form-grid"><Field label="نام فضای مدیریت" required error={errors.workspaceName}><input value={form.workspaceName} onChange={(event) => change({ workspaceName: event.target.value })} required maxLength={60} placeholder="نام فضای کار" /></Field><Field label="نام مدیر" required error={errors.adminName}><input value={form.adminName} onChange={(event) => change({ adminName: event.target.value })} required maxLength={50} placeholder="نام نمایشی مدیر" /></Field></div><Field label="ایمیل نمایشی مدیر" required error={errors.email} hint="در این نسخه ایمیلی ارسال نمی‌شود و احراز هویت واقعی انجام نمی‌شود."><input type="email" value={form.email} onChange={(event) => change({ email: event.target.value })} dir="ltr" required placeholder="admin@example.com" /></Field>
+    <hr className="people-separator" /><div className="people-settings-section-head"><span className="people-panel-icon"><Sparkles size={23} /></span><div><h2>ظاهر برنامه</h2><p className="muted">تمی انتخاب کن که با آن راحت‌تر کار می‌کنی.</p></div></div><div className="people-theme-options" role="group" aria-label="تم پنل"><button type="button" aria-pressed={form.theme === 'dark'} className={form.theme === 'dark' ? 'active' : ''} onClick={() => change({ theme: 'dark' })}><span className="people-theme-preview dark"><i /><span><i /><i /></span></span><span><Moon size={16} />تاریک</span>{form.theme === 'dark' && <Check size={15} />}</button><button type="button" aria-pressed={form.theme === 'light'} className={form.theme === 'light' ? 'active' : ''} onClick={() => change({ theme: 'light' })}><span className="people-theme-preview light"><i /><span><i /><i /></span></span><span><Sun size={16} />روشن</span>{form.theme === 'light' && <Check size={15} />}</button></div>
+    <hr className="people-separator" /><div className="people-settings-section-head"><span className="people-panel-icon"><Settings2 size={23} /></span><div><h2>ترجیح‌های محتوا</h2><p className="muted">شروع کار با محتوای تازه را تنظیم کن.</p></div></div><Field label="وضعیت اولیهٔ محتوا" hint="تغییر این گزینه روی محتوای قبلی اثری ندارد."><select value={form.defaultContentStatus} onChange={(event) => change({ defaultContentStatus: event.target.value as AdminSettings['defaultContentStatus'] })}><option value="draft">پیش‌نویس</option><option value="published">منتشرشده در پیش‌نمایش</option></select></Field><label className="people-toggle-row"><span className="people-toggle-icon"><Bell size={20} /></span><span><strong>اعلان‌های داخلی پنل</strong><small>اعلان‌های نمونه و یادآوری‌های محلی نمایش داده شوند.</small></span><input type="checkbox" checked={form.notificationsEnabled} onChange={(event) => change({ notificationsEnabled: event.target.checked })} /><span className={`people-toggle ${form.notificationsEnabled ? 'on' : ''}`} aria-hidden="true"><i /></span></label>
+    {errors.form && <p className="people-error" role="alert">{errors.form}</p>}<div className="people-settings-save"><button type="submit" className="btn btn-primary"><Save size={16} />ذخیرهٔ تنظیمات</button>{saved && <span className="people-success" role="status"><CheckCheck size={16} />تغییرات ذخیره شد.</span>}</div></form>
+    <aside><div className="panel people-form-panel"><span className="people-panel-icon"><ShieldCheck size={25} /></span><h2>مدیریت، در همین مرورگر</h2><p className="muted">اطلاعات ادمین از اپ یادگیرنده جداست. نام مدیر، تنظیمات و محتوای ویرایش‌شده فقط در این مرورگر می‌مانند.</p><div className="people-demo-note inset"><Mail size={17} /><p>ایمیل و نقش‌ها در این نسخه نمایشی‌اند؛ سرویس ارسال ایمیل یا احراز هویت متصل نیست.</p></div></div><div className="panel people-form-panel spaced"><span className="people-panel-icon danger"><Database size={24} /></span><h2>بازگشت به دادهٔ نمونه</h2><p className="muted">داده‌های همین پنل را به حالت اولیه برگردان. ویرایش‌های محتوا و کاربران پاک می‌شوند؛ تنظیمات مدیر، پیشرفت و کدهای اپ یادگیرنده حفظ می‌شوند.</p><button type="button" className="btn btn-danger" onClick={() => setReset(true)}><RotateCcw size={15} />بازنشانی داده‌های ادمین</button></div></aside></div>
+    <ConfirmDialog open={reset} onOpenChange={setReset} title="داده‌های نمایشی از نو ساخته شوند؟" description="ویرایش‌های محتوا و کاربران همین پنل به دادهٔ اولیه برمی‌گردند. تنظیمات فعلی مدیر و اطلاعات اپ یادگیرنده حفظ می‌شوند." confirmLabel="بازنشانی ادمین" danger onConfirm={resetAdmin} />
+  </div>;
+}
