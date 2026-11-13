@@ -1,0 +1,101 @@
+{
+  "source": [
+    "app/src/components/logo.tsx",
+    "app/src/app/icon.svg",
+    "app/src/app/globals.css"
+  ],
+  "generatedFrom": "Existing SVG paths, original CSS gradient, local JetBrains Mono 700; no redesign.",
+  "files": [
+    {
+      "file": "bitrolearn-mark-256.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 36739,
+      "sha256": "98d47e087c3416f721bb898d4070ba0c222dfc6dfff0c8f2336f0733e0f73313"
+    },
+    {
+      "file": "bitrolearn-mark-512.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 107835,
+      "sha256": "e9b9c341278dda89bfecee66e2fc31b4ed5410dd6b68acd7cbe62e930aabecef"
+    },
+    {
+      "file": "bitrolearn-mark-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 328662,
+      "sha256": "d3a4b7369a561263c10ad6dcca17c52ca8241183eb8dbd0836ce0f94256ed9e6"
+    },
+    {
+      "file": "bitrolearn-mark-2048.png",
+      "width": 2048,
+      "height": 2048,
+      "bytes": 778612,
+      "sha256": "0b7c21761a523344a339a57ac02bde62fcfeb7a22d0044ff923aee3ec64f6452"
+    },
+    {
+      "file": "bitrolearn-icon-512.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 17722,
+      "sha256": "d30a8901c3bb4faa94ddcdfa9371015ceb3dd0b335bb0dea6b1a4be441f0baa2"
+    },
+    {
+      "file": "bitrolearn-icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 46048,
+      "sha256": "115a11e153df55da74d97896019ba0be800cbc06c8df8b2a04c558f280bd7900"
+    },
+    {
+      "file": "bitrolearn-lockup-dark-transparent-1600.png",
+      "width": 1600,
+      "height": 400,
+      "bytes": 61332,
+      "sha256": "18a80129f04aabd14f2cf92c7da965a3b768469885081a8ec134e7fee429e2f6"
+    },
+    {
+      "file": "bitrolearn-lockup-dark-transparent-3200.png",
+      "width": 3200,
+      "height": 800,
+      "bytes": 171018,
+      "sha256": "723b765c35c2831dc75df7e590c9263d24822e7851f0c17e72deafeabde5a4de"
+    },
+    {
+      "file": "bitrolearn-lockup-dark-3200.png",
+      "width": 3200,
+      "height": 800,
+      "bytes": 158346,
+      "sha256": "9b2eb94b1db56e8e05e2342f6b4013c6c0f3b57a9bba4ec2a9e14d8b3df69f40"
+    },
+    {
+      "file": "bitrolearn-lockup-light-transparent-1600.png",
+      "width": 1600,
+      "height": 400,
+      "bytes": 62787,
+      "sha256": "07b86045d5799050892ca237e4e7218b489c574506c9c8f724542ef089423352"
+    },
+    {
+      "file": "bitrolearn-lockup-light-transparent-3200.png",
+      "width": 3200,
+      "height": 800,
+      "bytes": 172323,
+      "sha256": "de96e728e12e5c4cb5e3cff822a5bbed07e89a13b07c201ebe78a148bd099484"
+    },
+    {
+      "file": "bitrolearn-lockup-light-3200.png",
+      "width": 3200,
+      "height": 800,
+      "bytes": 154263,
+      "sha256": "d5ccbb94d0f50f953efa87352f66f14e7c3994ff0507a9a780fc2e44e6fd8949"
+    },
+    {
+      "file": "bitrolearn-logo-sheet.png",
+      "width": 3200,
+      "height": 2000,
+      "bytes": 223518,
+      "sha256": "29b42e67c69f1a0a6f7678a349f357e9f926c96a5f6113e58b5897a62ce8b280"
+    }
+  ]
+}
