@@ -14,3 +14,114 @@ services:
     ports:
       - "3001:3000"
     restart: unless-stopped
+  backend-api:
+    build: ./backend
+    image: bitro-backend:local
+    env_file: ./backend/.env
+    restart: unless-stopped
+    networks: [backend, default]
+    depends_on:
+      backend-init:
+        condition: service_completed_successfully
+      backend-redis:
+        condition: service_healthy
+      backend-seaweed:
+        condition: service_healthy
+  backend-init:
+    build: ./backend
+    image: bitro-backend:local
+    command: ["--initialize"]
+    env_file: ./backend/.env
+    restart: "no"
+    networks: [backend]
+    healthcheck:
+      disable: true
+    depends_on:
+      backend-postgres:
+        condition: service_healthy
+  backend-gateway:
+    image: nginx:1.28-alpine
+    user: nginx
+    entrypoint: ["nginx"]
+    command: ["-c", "/etc/nginx/bitro.conf", "-g", "daemon off;"]
+    volumes:
+      - ./backend/docker/gateway.conf:/etc/nginx/bitro.conf:ro
+    ports:
+      - "${BITRO_HTTP_PORT:-7075}:8080"
+    restart: unless-stopped
+    networks: [default]
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/public/health/live"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  backend-postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bitrolearn
+      POSTGRES_USER: bitro
+      POSTGRES_PASSWORD: ${BITRO_POSTGRES_PASSWORD:?Run backend/scripts/Initialize-LocalEnv.ps1 and use --env-file backend/.env}
+    volumes:
+      - backend-postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bitro -d bitrolearn"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backend-redis:
+    image: redis:7-alpine
+    environment:
+      BITRO_REDIS_PASSWORD: ${BITRO_REDIS_PASSWORD:?Backend environment is required}
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$BITRO_REDIS_PASSWORD\" --maxmemory 128mb --maxmemory-policy noeviction"]
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$BITRO_REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backend-seaweed:
+    image: chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["server", "-dir=/data", "-ip=backend-seaweed", "-ip.bind=0.0.0.0", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-volume.max=4", "-master.volumeSizeLimitMB=1024"]
+    volumes:
+      - backend-seaweed:/data
+      - ./backend/artifacts/seaweed-s3.json:/etc/seaweedfs/s3.json:ro
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9333/cluster/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backend-tests:
+    profiles: [test]
+    image: bitro-backend-tests:local
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.tests
+    env_file: ./backend/.env
+    environment:
+      BITRO_TEST_DB_CONNECTION_STRING: ${BITRO_DB_CONNECTION_STRING}
+      BITRO_TEST_REDIS_CONNECTION_STRING: ${BITRO_REDIS_CONNECTION_STRING}
+    networks: [backend]
+    depends_on:
+      backend-postgres:
+        condition: service_healthy
+      backend-redis:
+        condition: service_healthy
+
+networks:
+  backend:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.29.70.0/24
+
+volumes:
+  backend-postgres:
+  backend-seaweed:
