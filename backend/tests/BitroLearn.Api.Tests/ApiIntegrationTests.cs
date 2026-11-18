@@ -23,7 +23,7 @@ public sealed class ApiIntegrationTests(PostgresFixture database) : IClassFixtur
     {
         using var factory = new BackendTestFactory(database.ConnectionString);
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
-        foreach (var route in new[] { "/app/auth/me", "/admin/auth/me" })
+        foreach (var route in new[] { "/app/auth/me", "/admin/auth/me", "/app/lessons/unknown/progress", "/app/lessons/unknown/drafts/guided", "/app/project-templates/unknown/workspace", "/app/quiz-attempts" })
         {
             var response = await client.GetAsync(route);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

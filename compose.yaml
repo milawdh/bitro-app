@@ -27,6 +27,8 @@ services:
         condition: service_healthy
       backend-seaweed:
         condition: service_healthy
+      backend-cache:
+        condition: service_started
   backend-init:
     build: ./backend
     image: bitro-backend:local
@@ -39,6 +41,26 @@ services:
     depends_on:
       backend-postgres:
         condition: service_healthy
+  backend-worker:
+    image: bitro-backend:local
+    build: ./backend
+    command: ["--worker"]
+    env_file: ./backend/.env
+    restart: unless-stopped
+    networks: [backend, default]
+    depends_on:
+      backend-init:
+        condition: service_completed_successfully
+  backend-storage-gateway:
+    image: nginx:1.28-alpine
+    user: nginx
+    entrypoint: ["nginx"]
+    command: ["-c", "/etc/nginx/bitro-storage.conf", "-g", "daemon off;"]
+    volumes:
+      - ./backend/docker/storage.conf:/etc/nginx/bitro-storage.conf:ro
+    ports: ["7076:8080"]
+    networks: [backend, default]
+    depends_on: [backend-seaweed]
   backend-gateway:
     image: nginx:1.28-alpine
     user: nginx
@@ -87,7 +109,7 @@ services:
       retries: 10
   backend-seaweed:
     image: chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
-    command: ["server", "-dir=/data", "-ip=backend-seaweed", "-ip.bind=0.0.0.0", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-volume.max=4", "-master.volumeSizeLimitMB=1024"]
+    command: ["server", "-dir=/data", "-ip=backend-seaweed", "-ip.bind=0.0.0.0", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json", "-volume.max=0", "-master.volumeSizeLimitMB=1024"]
     volumes:
       - backend-seaweed:/data
       - ./backend/artifacts/seaweed-s3.json:/etc/seaweedfs/s3.json:ro
@@ -95,6 +117,18 @@ services:
     networks: [backend]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9333/cluster/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backend-cache:
+    image: redis:7-alpine
+    environment:
+      BITRO_CACHE_REDIS_PASSWORD: ${BITRO_CACHE_REDIS_PASSWORD:-local-cache-not-configured}
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$BITRO_CACHE_REDIS_PASSWORD\" --maxmemory 128mb --maxmemory-policy allkeys-lru --save '' --appendonly no"]
+    restart: unless-stopped
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$BITRO_CACHE_REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -114,6 +148,32 @@ services:
         condition: service_healthy
       backend-redis:
         condition: service_healthy
+      backend-cache:
+        condition: service_healthy
+
+  backend-playback-tests:
+    profiles: [playback-test]
+    image: bitro-backend-tests:local
+    env_file: ./backend/.env
+    environment:
+      BITRO_TEST_DB_CONNECTION_STRING: ${BITRO_DB_CONNECTION_STRING}
+      BITRO_TEST_REDIS_CONNECTION_STRING: ${BITRO_REDIS_CONNECTION_STRING}
+      BITRO_TEST_PLAYBACK_BROWSER: "true"
+    command: ["--TestCaseFilter:FullyQualifiedName~PlaybackBrowserFixture"]
+    networks: [backend, default]
+    ports: ["127.0.0.1:7080:8080"]
+    volumes:
+      - ./backend/artifacts/playback-browser:/playback-artifacts
+      - ./backend/artifacts/media-test-probe/package/ffprobe:/usr/local/bin/ffprobe:ro
+    depends_on:
+      backend-postgres:
+        condition: service_healthy
+      backend-redis:
+        condition: service_healthy
+      backend-seaweed:
+        condition: service_healthy
+      backend-cache:
+        condition: service_started
 
 networks:
   backend:

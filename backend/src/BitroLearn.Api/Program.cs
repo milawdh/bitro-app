@@ -28,15 +28,22 @@ if (args.Contains("--healthcheck", StringComparer.Ordinal))
 #endregion
 
 #region Configuration and Core Services
+if (args.Contains("--export-contracts",StringComparer.Ordinal)) { Console.Write(BitroLearn.Api.Services.ContractExporter.Export()); return; }
 AppConfigurationStatic.LoadEnvFile();
 var initialize = args.Contains("--initialize", StringComparer.Ordinal);
 AppConfigurationStatic.Validate(initialize);
-var builder = WebApplication.CreateBuilder(args.Where(argument => argument != "--initialize").ToArray());
+var builder = WebApplication.CreateBuilder(args.Where(argument => argument is not "--initialize" and not "--worker").ToArray());
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(options => options.IncludeScopes = true);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(AppConfigurationStatic.GetDbConnectionString(), postgres => postgres.CommandTimeout(30)));
 builder.Services.AddBitroAuthentication();
 builder.Services.AddScoped<DatabaseInitializer>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<BitroLearn.Api.Services.CommerceService>();
+builder.Services.AddScoped<BitroLearn.Api.Services.LearningService>();
+builder.Services.AddScoped<BitroLearn.Api.Services.AssessmentService>();
+builder.Services.AddHttpClient("commerce", client => client.Timeout = TimeSpan.FromSeconds(20));
+if (args.Contains("--worker", StringComparer.Ordinal)) { builder.Services.AddHostedService<BitroLearn.Api.Services.CommerceWorker>(); builder.Services.AddHostedService<BitroLearn.Api.Services.MediaWorker>(); builder.Services.AddHostedService<BitroLearn.Api.Services.LicenseWorker>(); }
 builder.Services.AddDataProtection().SetApplicationName(AppConfigurationStatic.GetDataProtectionApplicationName()).PersistKeysToDbContext<AppDbContext>();
 builder.Services.AddAntiforgery(options =>
 {
@@ -68,12 +75,20 @@ builder.Services.AddSingleton<IRedisStore, RedisStore>();
 #region Cache Storage Health and Documentation Services
 if (!initialize)
 {
+    builder.Services.AddScoped<BitroLearn.Api.Services.MediaService>();
     builder.Services.AddMemoryCache();
-    builder.Services.AddStackExchangeRedisCache(options =>
+    if(AppConfigurationStatic.GetCacheRedisConnectionString() is {} cacheConnection)
     {
-        options.Configuration = AppConfigurationStatic.GetRedisConnectionString();
-        options.InstanceName = "bitro:cache:";
-    });
+        builder.Services.AddKeyedSingleton<IConnectionMultiplexer>("content",(_,_)=>
+        {
+            var options=ConfigurationOptions.Parse(cacheConnection);
+            options.AbortOnConnectFail=false;options.ConnectTimeout=500;options.AsyncTimeout=500;options.SyncTimeout=500;
+            return ConnectionMultiplexer.Connect(options);
+        });
+        builder.Services.AddKeyedSingleton<IRedisStore>("content",(services,_)=>new RedisStore(services.GetRequiredKeyedService<IConnectionMultiplexer>("content")));
+        builder.Services.AddSingleton<Microsoft.Extensions.Caching.Distributed.IDistributedCache,ContentDistributedCache>();
+    }
+    builder.Services.AddSingleton<BitroLearn.Api.Services.ContentCache>();
     builder.Services.AddHybridCache(options =>
     {
         options.MaximumPayloadBytes = 1024 * 1024;
