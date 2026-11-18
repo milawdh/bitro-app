@@ -8,7 +8,7 @@
 - مرجع رنگ‌ها، فونت‌ها، توکن‌ها، اجزای رابط و قواعد طراحی در فایل مستقل [دیزاین سیستم](design-system.html) است.
 - گالری و دریافت خروجی‌های لوگو در فایل [کتابخانهٔ لوگو](app/brand-assets/index.html) و بستهٔ [همهٔ تصاویر](app/brand-assets/bitrolearn-logos.zip) قرار دارد.
 
-هر دو گزارش با فونت‌های تعبیه‌شده، بدون اینترنت و مستقیماً در مرورگر باز می‌شوند. زیرساخت، مدل داده، سید و ورود مستقل ادمین و اپ در بک‌اند پیاده شده‌اند؛ سایر تسک‌ها در گزارش مشخص‌اند. راهنمای فنی در [راهنمای بک‌اند](backend/README.md) و قواعد انگلیسی توسعه در [سیاست رابط](backend/API-POLICY.md) هستند.
+هر دو گزارش با فونت‌های تعبیه‌شده، بدون اینترنت و مستقیماً در مرورگر باز می‌شوند. بک‌اند تا تسک هفت، شامل دوره و پرداخت، پیشرفت، پیش‌نویس، تصحیح سروری و کش محتوا پیاده شده است. راهنمای فنی در [راهنمای بک‌اند](backend/README.md)، جزئیات مرحلهٔ جدید در [راهنمای یادگیری و کش](backend/LEARNING.md) و قواعد انگلیسی توسعه در [سیاست رابط](backend/API-POLICY.md) هستند.
 
 ```text
 bitro-app/
@@ -25,7 +25,7 @@ bitro-app/
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File backend/scripts/Initialize-LocalEnv.ps1
-docker compose --env-file backend/.env up --build -d frontend admin backend-gateway
+docker compose --env-file backend/.env up --build -d frontend admin backend-gateway backend-worker backend-storage-gateway
 docker compose --env-file backend/.env ps
 ```
 

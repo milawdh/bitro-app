@@ -36,6 +36,7 @@ This document is the development contract for the backend API. Every controller 
 - Cookie-authenticated state-changing requests require a CSRF token in `X-CSRF-TOKEN`. Login and OTP requests are included.
 - `GET /public/auth/csrf?area=app` returns an app token; `?area=admin` returns an admin token. The default area is `app`. Token generation authenticates only the selected scheme. Fetch a fresh token after that area identity changes, including login and logout.
 - Use `GET` for reads. A read endpoint must not mutate application state.
+- The external Zibal `GET` callback is a documented exception solely for appending an untrusted callback receipt to the audit ledger. It must never verify a payment, activate access, or issue a license.
 - Check ownership before exposing or modifying a user's drafts, projects, progress, or private files. A client-supplied user ID never replaces the authenticated server identity.
 - Return explicit response DTOs. Do not serialize database entities, correct answers, password hashes, security stamps, or secrets directly.
 - Validate input and propagate request cancellation to database and external-service operations.
