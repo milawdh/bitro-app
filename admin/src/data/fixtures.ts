@@ -1,4 +1,5 @@
 import source from './seed-content.json';
+import {commerceCourses} from '@/lib/course-commerce';
 import type { AdminData,AdminCourse,AdminLesson,AdminLab,AdminChallenge,AdminProject,AdminUser,LearningEvent,ConceptSlug } from '@/lib/types';
 
 const reference='2026-11-12T09:00:00.000Z';
@@ -12,6 +13,12 @@ export function createSeedData():AdminData {
   const content=source.lessons[lesson.slug as keyof typeof source.lessons];
   return {...base(`${course.slug}-${lesson.slug}`,lesson.slug,lesson.title,lesson.description),...content,courseId:course.slug,order:index,moduleId:`${course.slug}-module-${(moduleIndex[lesson.slug]??0)+1}`,concept:content.concept as ConceptSlug};
  }));
+ for(const course of courses){const config=commerceCourses.find(c=>c.id===course.id);if(config){course.commerceType=config.commerceType;course.priceRial=config.priceRial;course.cover=config.cover;course.introVideoId=config.introVideoId??undefined;course.spotPlayerCourseId=config.commerceType==='free'?undefined:`demo-${course.id}`;}course.animations=lessons.filter(l=>l.courseId===course.id).map(l=>({key:l.concept,enabled:true,settings:{}})).filter((b,i,all)=>all.findIndex(x=>x.key===b.key)===i);}
+ for(const lesson of lessons){lesson.delivery='onsite';lesson.hasQuiz=true;lesson.animations=[{key:lesson.concept,enabled:true,settings:{}}];}
+ for(const course of courses.filter(c=>c.commerceType!=='free')){
+  const courseModule=course.modules[course.id==='dotnet'?6:0];
+  lessons.push({...base(`demo-spot-${course.id}`,`spot-${course.id}`,courseModule.title,'ارائهٔ این سرفصل در اسپات‌پلیر'),courseId:course.id,moduleId:courseModule.id,order:100,duration:30,delivery:'spotplayer',hasQuiz:false,animations:[],concept:'http',intro:'',analogy:'',objectives:[],experiment:'',code:'',output:[],question:'',choices:[],answer:0,hint:'',explanation:''});
+ }
  const category:Record<string,AdminLab['category']>={'مبانی':'fundamentals','شیءگرایی':'oop','پیشرفته':'advanced','بک‌اند':'backend'};
  const labs:AdminLab[]=source.labs.map((lab):AdminLab=>({...base(lab.slug,lab.slug,lab.title,lab.description),concept:lab.slug as ConceptSlug,category:category[lab.category]??'fundamentals',duration:15,config:lab.slug==='variables'?{name:'score',initialValue:42}:lab.slug==='threads'?{schedule:'concurrent',steps:6}:lab.slug==='transactions'?{firstBalance:100,secondBalance:50}:lab.slug==='objects'?{initialSpeed:0,maxSpeed:120}:{showExplanations:true}}));
  const challenges:AdminChallenge[]=source.challenges.map((challenge,index)=>({...base(challenge.slug,challenge.slug,challenge.title,challenge.description,index===3?'draft':'published'),difficulty:challenge.difficulty as AdminChallenge['difficulty'],duration:challenge.duration,concept:challenge.concept as ConceptSlug,courseId:challenge.course,hint:challenge.hint,questions:challenge.questions}));

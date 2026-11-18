@@ -1,0 +1,6 @@
+'use client';
+import type {AdminLesson} from '@/lib/types';
+import {AnimationEditor} from '@/components/animation-editor';
+export function LessonDeliveryFields({lesson,onChange}:{lesson:AdminLesson;onChange:(patch:Partial<AdminLesson>)=>void}){
+ return <><section className="panel" style={{padding:24,display:'grid',gap:16}}><h2>محل ارائه ویدئو و محتوای درس</h2><label>محل ارائه<select value={lesson.delivery??'onsite'} onChange={e=>onChange({delivery:e.target.value as AdminLesson['delivery'],videoId:undefined,hasQuiz:e.target.value==='spotplayer'?false:lesson.hasQuiz,animations:e.target.value==='spotplayer'?[]:lesson.animations})}><option value="onsite">رایگان داخل سایت پس از عضویت</option><option value="spotplayer">بخش پولی در اسپات‌پلیر</option></select></label>{lesson.delivery!=='spotplayer'&&<><label>شناسهٔ ویدئوی آماده اختیاری<input value={lesson.videoId??''} onChange={e=>onChange({videoId:e.target.value})}/></label><label><input type="checkbox" checked={lesson.hasQuiz??true} onChange={e=>onChange({hasQuiz:e.target.checked})}/>این درس آزمون دارد</label></>}</section>{lesson.delivery!=='spotplayer'&&<AnimationEditor bindings={lesson.animations??[]} onChange={animations=>onChange({animations})}/>}</>;
+}

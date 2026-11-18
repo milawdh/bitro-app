@@ -2,8 +2,8 @@ export type ContentStatus = 'draft' | 'published' | 'archived';
 export type ConceptSlug = 'variables' | 'references' | 'objects' | 'oop' | 'threads' | 'async' | 'http' | 'di' | 'transactions' | 'loops';
 export interface BaseContent {id:string;slug:string;title:string;description:string;status:ContentStatus;createdAt:string;updatedAt:string}
 export interface CourseModule {id:string;title:string}
-export interface AdminCourse extends BaseContent {subtitle:string;level:'beginner'|'intermediate'|'advanced';color:'purple'|'cyan'|'amber';modules:CourseModule[]}
-export interface AdminLesson extends BaseContent {courseId:string;moduleId:string;order:number;duration:number;concept:ConceptSlug;intro:string;analogy:string;objectives:string[];experiment:string;code:string;output:string[];question:string;choices:string[];answer:number;hint:string;explanation:string}
+export interface AdminCourse extends BaseContent {animations?:{key:string;enabled:boolean;settings:Record<string,string|number|boolean>}[];commerceType?:"free"|"mixed"|"paid";priceRial?:number;spotPlayerCourseId?:string;cover?:{kind:"preset"|"image";presetKey:string;fileId:string|null};introVideoId?:string;subtitle:string;level:'beginner'|'intermediate'|'advanced';color:'purple'|'cyan'|'amber';modules:CourseModule[]}
+export interface AdminLesson extends BaseContent {delivery?:"onsite"|"spotplayer";videoId?:string;hasQuiz?:boolean;animations?:{key:string;enabled:boolean;settings:Record<string,string|number|boolean>}[];courseId:string;moduleId:string;order:number;duration:number;concept:ConceptSlug;intro:string;analogy:string;objectives:string[];experiment:string;code:string;output:string[];question:string;choices:string[];answer:number;hint:string;explanation:string}
 export interface AdminLab extends BaseContent {concept:ConceptSlug;category:'fundamentals'|'oop'|'advanced'|'backend';duration:number;config:Record<string,string|number|boolean>}
 export interface ChallengeOption {id:string;label:string}
 export interface ChallengeQuestion {id:string;prompt:string;code:string;options:ChallengeOption[];correctOption:string;explanation:string}

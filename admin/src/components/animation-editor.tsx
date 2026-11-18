@@ -1,0 +1,7 @@
+'use client';
+import registry from '@/lib/animation-registry.json';
+export interface AnimationBinding {key:string;enabled:boolean;settings:Record<string,string|number|boolean>}
+export function AnimationEditor({bindings,onChange}:{bindings:AnimationBinding[];onChange:(next:AnimationBinding[])=>void}){
+ const patch=(key:string,change:Partial<AnimationBinding>)=>onChange([...bindings.filter(b=>b.key!==key),{key,enabled:false,settings:{},...bindings.find(b=>b.key===key),...change}]);
+ return <section className="panel" style={{padding:24,display:'grid',gap:12}}><h2>کامپوننت‌های انیمیشن</h2>{Object.entries(registry).map(([key,defaults])=>{const binding=bindings.find(b=>b.key===key);return <fieldset key={key}><legend><label><input type="checkbox" checked={binding?.enabled??false} onChange={e=>patch(key,{enabled:e.target.checked})}/><span dir="ltr">{key}</span></label></legend>{binding?.enabled&&Object.entries(defaults).map(([name,value])=><label key={name} style={{display:'inline-grid',margin:8}}>{name}<input type={typeof value==='boolean'?'checkbox':typeof value==='number'?'number':'text'} checked={typeof value==='boolean'?Boolean(binding.settings[name]??value):undefined} value={typeof value==='boolean'?undefined:String(binding.settings[name]??value)} onChange={e=>patch(key,{settings:{...binding.settings,[name]:typeof value==='boolean'?e.target.checked:typeof value==='number'?Number(e.target.value):e.target.value}})}/></label>)}</fieldset>;})}</section>;
+}

@@ -14,6 +14,10 @@ export function validateEntity<K extends ContentKind>(kind:K,entity:ContentEntit
  if(publish)required('description',entity.description,'برای انتشار، توضیح کوتاه را بنویس.');
  if(kind==='courses'){
   const course=entity as AdminCourse;
+  const mode=course.commerceType??'free';
+  if(mode==='free'&&(course.priceRial??0)!==0)errors.priceRial='دورهٔ رایگان قیمت ندارد.';
+  if(mode!=='free'&&(!Number.isSafeInteger(course.priceRial)||Number(course.priceRial)<1000||!course.spotPlayerCourseId?.trim()))errors.priceRial='قیمت معتبر و شناسهٔ دورهٔ اسپات‌پلیر را وارد کن.';
+  if(publish){const delivery=data.lessons.filter(l=>l.courseId===course.id&&l.status==='published').map(l=>l.delivery??'onsite');if(mode==='free'&&delivery.includes('spotplayer')||mode==='paid'&&delivery.includes('onsite')||mode==='mixed'&&(!delivery.includes('onsite')||!delivery.includes('spotplayer')))errors.commerceType='نوع دوره با محل ارائهٔ سرفصل‌های منتشرشده هم‌خوان نیست.';}
   if(!['beginner','intermediate','advanced'].includes(course.level))errors.level='سطح دوره را انتخاب کن.';
   if(publish&&!course.modules.length)errors.modules='برای انتشار حداقل یک فصل بساز.';
   if(course.modules.some(module=>!module.title.trim())||new Set(course.modules.map(module=>module.id)).size!==course.modules.length)errors.modules='فصل‌ها باید عنوان و شناسهٔ یکتا داشته باشند.';
@@ -28,10 +32,13 @@ export function validateEntity<K extends ContentKind>(kind:K,entity:ContentEntit
  }
  if(kind==='lessons'){
   const lesson=entity as AdminLesson;
+  const parentMode=data.courses.find(c=>c.id===lesson.courseId)?.commerceType??'free';
+  if(lesson.delivery==='spotplayer'&&(parentMode==='free'||lesson.videoId))errors.delivery='سرفصل پولی باید در دورهٔ دارای بخش اسپات‌پلیر باشد.';
+  if(lesson.delivery!=='spotplayer'&&parentMode==='paid')errors.delivery='درس داخلی برای دورهٔ رایگان یا ترکیبی است.';
   if(!Number.isInteger(lesson.order)||lesson.order<0)errors.order='ترتیب درس باید یک عدد صحیح نامنفی باشد.';
   if(!data.courses.find(course=>course.id===lesson.courseId)?.modules.some(module=>module.id===lesson.moduleId))errors.moduleId='یک فصل از همین دوره انتخاب کن.';
   if(!concepts.includes(lesson.concept))errors.concept='مفهوم درس پشتیبانی نمی‌شود.';
-  if(publish){
+  if(publish&&lesson.delivery!=='spotplayer'&&lesson.hasQuiz!==false){
    required('intro',lesson.intro,'توضیح اصلی درس را بنویس.');required('experiment',lesson.experiment,'راهنمای آزمایش را بنویس.');required('code',lesson.code,'کد نمونه را وارد کن.');required('question',lesson.question,'پرسش پایانی را بنویس.');
    if(!lesson.objectives.some(objective=>objective.trim()))errors.objectives='حداقل یک هدف یادگیری لازم است.';
    if(lesson.choices.length<2||lesson.choices.some(choice=>!choice.trim())||!Number.isInteger(lesson.answer)||lesson.answer<0||lesson.answer>=lesson.choices.length)errors.choices='حداقل دو گزینه و یک پاسخ صحیح معتبر مشخص کن.';

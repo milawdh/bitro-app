@@ -24,6 +24,10 @@ function validSnapshot(value:unknown):value is Partial<AdminState>{
  const data=value as AdminData;
  return (['courses','lessons','labs','challenges','projects','users','learningEvents','activity'] as const).every(key=>Array.isArray(data[key]))&&['courses','lessons','labs','challenges','projects'].every(key=>(data[key as ContentKind]).every(item=>item&&typeof item.id==='string'&&typeof item.title==='string'))&&!!data.settings&&['dark','light'].includes(data.settings.theme)&&data.users.every(user=>user&&typeof user.name==='string');
 }
+function upgradeSnapshot(value:unknown):unknown{
+ if(!validSnapshot(value))return value;
+ return {...value,courses:value.courses?.map(c=>({...c,commerceType:c.commerceType??'free',priceRial:c.priceRial??0,cover:c.cover??{kind:'preset' as const,presetKey:c.id==='dotnet'?'server':c.id==='architecture'?'layers':'code',fileId:null},animations:c.animations??(value.lessons??[]).filter(l=>l.courseId===c.id).map(l=>({key:l.concept,enabled:true,settings:{}})).filter((b,i,all)=>all.findIndex(x=>x.key===b.key)===i)})),lessons:value.lessons?.map(l=>({...l,delivery:l.delivery??'onsite',hasQuiz:l.hasQuiz??true,animations:l.animations??[{key:l.concept,enabled:true,settings:{}}]}))};
+}
 export const useAdminStore=create<AdminState>()(persist((set,get)=>({
  ...createSeedData(),hasHydrated:false,session:true,toasts:[],setHasHydrated:hasHydrated=>set({hasHydrated}),
  saveEntity:(kind,entity)=>{
@@ -70,7 +74,7 @@ export const useAdminStore=create<AdminState>()(persist((set,get)=>({
  login:(name,email)=>set({session:true,settings:{...get().settings,adminName:name.trim(),email:email.trim()}}),logout:()=>set({session:false}),
  notify:(message,type='success')=>set(state=>({toasts:[...state.toasts,{id:createId('toast'),message,type}].slice(-3)})),
  dismissToast:id=>set(state=>({toasts:state.toasts.filter(toast=>toast.id!==id)})),
-}),{name:'bitro-admin-data-v1',version:1,storage:createJSONStorage(()=>localStorage),partialize:state=>({courses:state.courses,lessons:state.lessons,labs:state.labs,challenges:state.challenges,projects:state.projects,users:state.users,learningEvents:state.learningEvents,activity:state.activity,settings:state.settings,session:state.session}),merge:(saved,current)=>validSnapshot(saved)?{...current,...saved}:current,onRehydrateStorage:()=>state=>state?.setHasHydrated(true)}));
+}),{name:'bitro-admin-data-v1',version:2,migrate:saved=>upgradeSnapshot(saved) as Partial<AdminState>,storage:createJSONStorage(()=>localStorage),partialize:state=>({courses:state.courses,lessons:state.lessons,labs:state.labs,challenges:state.challenges,projects:state.projects,users:state.users,learningEvents:state.learningEvents,activity:state.activity,settings:state.settings,session:state.session}),merge:(saved,current)=>validSnapshot(saved)?{...current,...saved}:current,onRehydrateStorage:()=>state=>state?.setHasHydrated(true)}));
 
 export function repositoryFor<K extends ContentKind>(kind:K):AdminRepository<ContentEntityMap[K]>{
  return {list:()=>useAdminStore.getState()[kind] as ContentEntityMap[K][],get:id=>(useAdminStore.getState()[kind] as ContentEntityMap[K][]).find(item=>item.id===id),save:entity=>useAdminStore.getState().saveEntity(kind,entity),archive:ids=>useAdminStore.getState().setStatus(kind,ids,'archived')};

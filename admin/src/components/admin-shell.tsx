@@ -7,7 +7,7 @@ import {ArrowUpLeft,BarChart3,Bell,BookOpen,ChevronDown,ChevronLeft,Command,File
 import {Logo} from './logo';
 import {useAdminStore} from '@/stores/admin-store';
 import {faNumber} from '@/lib/utils';
-const nav=[{href:'/dashboard',label:'نمای کلی',icon:LayoutDashboard},{href:'/courses',label:'مسیرهای یادگیری',icon:BookOpen},{href:'/lessons',label:'درس‌ها',icon:FileCode2},{href:'/labs',label:'آزمایشگاه مفاهیم',icon:FlaskConical},{href:'/challenges',label:'چالش‌ها',icon:Trophy},{href:'/projects',label:'قالب پروژه‌ها',icon:FolderCode},{href:'/users',label:'یادگیرنده‌ها',icon:Users},{href:'/analytics',label:'گزارش‌ها و تحلیل',icon:BarChart3},{href:'/settings',label:'تنظیمات',icon:Settings2}];
+const nav=[{href:'/invoices',label:'فاکتورها و حسابرسی',icon:BarChart3},{href:'/media',label:'رسانهٔ دوره',icon:FolderCode},{href:'/commerce',label:'فعال‌سازی و لایسنس',icon:ShieldCheck},{href:'/dashboard',label:'نمای کلی',icon:LayoutDashboard},{href:'/courses',label:'مسیرهای یادگیری',icon:BookOpen},{href:'/lessons',label:'درس‌ها',icon:FileCode2},{href:'/labs',label:'آزمایشگاه مفاهیم',icon:FlaskConical},{href:'/challenges',label:'چالش‌ها',icon:Trophy},{href:'/projects',label:'قالب پروژه‌ها',icon:FolderCode},{href:'/users',label:'یادگیرنده‌ها',icon:Users},{href:'/analytics',label:'گزارش‌ها و تحلیل',icon:BarChart3},{href:'/settings',label:'تنظیمات',icon:Settings2}];
 export function AdminShell({children}:{children:React.ReactNode}){
  const path=usePathname(),router=useRouter(),state=useAdminStore();
  const [mobile,setMobile]=useState(false),[open,setOpen]=useState(false),[query,setQuery]=useState('');
