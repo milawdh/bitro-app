@@ -6,6 +6,13 @@ public static class AppConfigurationStatic
 {
     #region Environment Keys
     public const string EnvFileKey = "BITRO_ENV_FILE";
+    public const string ZibalMerchantKey = "BITRO_ZIBAL_MERCHANT";
+    public const string ZibalCallbackKey = "BITRO_ZIBAL_CALLBACK_URL";
+    public const string AppPublicUrlKey = "BITRO_APP_PUBLIC_URL";
+    public const string SpotApiKey = "BITRO_SPOTPLAYER_API_KEY";
+    public const string SpotTestKey = "BITRO_SPOTPLAYER_TEST";
+    public const string StoragePublicEndpointKey = "BITRO_S3_PUBLIC_ENDPOINT";
+    public const string MediaLinkLifetimeSecondsKey = "BITRO_MEDIA_LINK_TTL_SECONDS";
     public const string HttpPortKey = "BITRO_HTTP_PORT";
     public const string DbConnectionStringKey = "BITRO_DB_CONNECTION_STRING";
     public const string RedisConnectionStringKey = "BITRO_REDIS_CONNECTION_STRING";
@@ -35,6 +42,11 @@ public static class AppConfigurationStatic
     public const string LocalEnvironmentKey = "ASPNETCORE_ENVIRONMENT";
     public const string ListenUrlsKey = "ASPNETCORE_URLS";
     public const string CacheLocalSecondsKey = "BITRO_CACHE_LOCAL_SECONDS";
+    public const string CacheRedisConnectionKey = "BITRO_CACHE_REDIS_CONNECTION_STRING";
+    public const string CacheFailureBackoffKey = "BITRO_CACHE_FAILURE_BACKOFF_SECONDS";
+    public const string LearningCodeBytesKey = "BITRO_LEARNING_CODE_MAX_BYTES";
+    public const string LearningProjectBytesKey = "BITRO_LEARNING_PROJECT_MAX_BYTES";
+    public const string LearningProjectFilesKey = "BITRO_LEARNING_PROJECT_MAX_FILES";
     public const string CacheDistributedSecondsKey = "BITRO_CACHE_DISTRIBUTED_SECONDS";
     #endregion
 
@@ -103,6 +115,12 @@ public static class AppConfigurationStatic
     #region Typed Settings
 
     public static string GetDbConnectionString() => Required(DbConnectionStringKey);
+    public static string GetAppPublicUrl()
+    {
+        var value = AppPublicUrlKey.ReadEnv() ?? "http://localhost:3000";
+        if (!Uri.TryCreate(value,UriKind.Absolute,out var url) || url.Scheme is not ("http" or "https")) throw new InvalidOperationException($"Invalid setting: {AppPublicUrlKey}.");
+        return value.TrimEnd('/');
+    }
     public static int GetHttpPort() => Integer(HttpPortKey, 7075, 1, 65535);
     public static string GetRedisConnectionString() => Required(RedisConnectionStringKey);
     public static string GetSuperUserEmail() => SuperUserEmailKey.ReadEnv() ?? "admin@bitrolearn.local";
@@ -121,12 +139,18 @@ public static class AppConfigurationStatic
     public static bool GetCookieSecure() => Boolean(CookieSecureKey, true);
     public static int GetCookieLifetimeHours() => Integer(CookieLifetimeHoursKey, 8, 1, 168);
     public static int GetCacheLocalSeconds() => Integer(CacheLocalSecondsKey, 15, 1, 3600);
+    public static string? GetCacheRedisConnectionString() => CacheRedisConnectionKey.ReadEnv();
+    public static int GetCacheFailureBackoffSeconds() => Integer(CacheFailureBackoffKey,5,1,60);
+    public static int GetLearningCodeMaxBytes() => Integer(LearningCodeBytesKey,262144,1024,1048576);
+    public static int GetLearningProjectMaxBytes() => Integer(LearningProjectBytesKey,1048576,1024,1572864);
+    public static int GetLearningProjectMaxFiles() => Integer(LearningProjectFilesKey,100,1,1000);
     public static int GetCacheDistributedSeconds() => Integer(CacheDistributedSecondsKey, 60, 1, 86400);
     public static string GetDataProtectionApplicationName() => DataProtectionApplicationNameKey.ReadEnv() ?? "BitroLearn.Backend";
     public static string GetS3Endpoint() => Required(S3EndpointKey);
     public static string GetS3AccessKey() => Required(S3AccessKeyKey);
     public static string GetS3SecretKey() => Required(S3SecretKeyKey);
     public static string GetS3Bucket() => S3BucketKey.ReadEnv() ?? "bitrolearn";
+    public static int GetMediaLinkLifetimeSeconds() => Integer(MediaLinkLifetimeSecondsKey,14400,60,604800);
     public static string? GetTrustedProxyNetwork() => TrustedProxyNetworkKey.ReadEnv();
 
     #endregion
@@ -149,10 +173,12 @@ public static class AppConfigurationStatic
         _ = GetOtpMaxAttempts(); _ = GetOtpLockSeconds(); _ = GetOtpRateWindowSeconds();
         _ = GetOtpPhoneHourlyLimit(); _ = GetOtpIpHourlyLimit();
         _ = GetCacheLocalSeconds(); _ = GetCacheDistributedSeconds();
+        _ = GetCacheFailureBackoffSeconds(); _ = GetLearningCodeMaxBytes(); _ = GetLearningProjectMaxBytes(); _ = GetLearningProjectMaxFiles();
         if (GetOtpHmacKey().Length < 32) throw new InvalidOperationException($"Setting must contain at least 32 characters: {OtpHmacKey}.");
         if (!Uri.TryCreate(GetS3Endpoint(), UriKind.Absolute, out var endpoint) || endpoint.Scheme is not ("http" or "https"))
             throw new InvalidOperationException($"Invalid endpoint setting: {S3EndpointKey}.");
         _ = GetS3AccessKey(); _ = GetS3SecretKey();
+        _ = GetMediaLinkLifetimeSeconds();
     }
 
     #endregion

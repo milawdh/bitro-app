@@ -5,6 +5,25 @@ namespace BitroLearn.Api.Tests;
 public sealed class ConfigurationTests
 {
     #region Environment precedence
+    [Theory]
+    [InlineData(null,14400)]
+    [InlineData("60",60)]
+    [InlineData("14400",14400)]
+    public void Media_link_lifetime_is_configurable_with_four_hour_default(string? value,int expected)
+    {
+        using var env=new EnvironmentScope(new Dictionary<string,string?> {[AppConfigurationStatic.MediaLinkLifetimeSecondsKey]=value});
+        Assert.Equal(expected,AppConfigurationStatic.GetMediaLinkLifetimeSeconds());
+    }
+    [Theory]
+    [InlineData("0")]
+    [InlineData("59")]
+    [InlineData("604801")]
+    [InlineData("invalid")]
+    public void Invalid_media_link_lifetime_is_rejected(string value)
+    {
+        using var env=new EnvironmentScope(new Dictionary<string,string?> {[AppConfigurationStatic.MediaLinkLifetimeSecondsKey]=value});
+        Assert.Throws<InvalidOperationException>(()=>AppConfigurationStatic.GetMediaLinkLifetimeSeconds());
+    }
 
     [Theory]
     [InlineData("process", "user", "machine", "process")]

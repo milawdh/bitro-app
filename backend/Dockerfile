@@ -12,6 +12,9 @@ RUN --mount=type=cache,id=bitro-backend-nuget-v1,target=/root/.nuget/packages,sh
     dotnet publish src/BitroLearn.Api/BitroLearn.Api.csproj --no-restore -c Release -o /publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get -o Acquire::Retries=3 update && \
+    apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080 DOTNET_CLI_TELEMETRY_OPTOUT=1
 COPY --from=build --chown=app:app /publish .

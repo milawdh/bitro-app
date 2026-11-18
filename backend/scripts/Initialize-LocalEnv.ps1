@@ -65,8 +65,9 @@ if (-not (Test-Path -LiteralPath $OutputPath)) {
     Write-Output 'Existing environment file preserved.'
 }
 # Fill only newly introduced non-secret defaults when rerunning the setup script.
-$optionalDefaults = @('BITRO_ADMIN_MAX_ATTEMPTS=5', 'BITRO_ADMIN_LOCK_SECONDS=900', 'BITRO_OTP_LOCK_SECONDS=900', 'BITRO_OTP_RATE_WINDOW_SECONDS=3600')
+$optionalDefaults = @('BITRO_ADMIN_MAX_ATTEMPTS=5', 'BITRO_ADMIN_LOCK_SECONDS=900', 'BITRO_OTP_LOCK_SECONDS=900', 'BITRO_OTP_RATE_WINDOW_SECONDS=3600', 'BITRO_S3_PUBLIC_ENDPOINT=http://localhost:7076', 'BITRO_ZIBAL_MERCHANT=zibal', 'BITRO_ZIBAL_CALLBACK_URL=http://localhost:7075/public/payments/zibal/callback', 'BITRO_SPOTPLAYER_TEST=true', 'BITRO_APP_PUBLIC_URL=http://localhost:3000')
 $existingLines = [IO.File]::ReadAllLines($OutputPath)
+$optionalDefaults += 'BITRO_MEDIA_LINK_TTL_SECONDS=14400'
 foreach ($defaultEntry in $optionalDefaults) {
     $defaultKey = $defaultEntry.Split('=')[0]
     if (-not ($existingLines | Where-Object { $_.StartsWith($defaultKey + '=') })) {
@@ -82,6 +83,15 @@ function Read-LocalSetting([string]$Key) {
     return $match.Substring($Key.Length + 1).Trim().Trim('"').Trim("'")
 }
 $privateDirectory = Join-Path $backendDirectory 'artifacts'
+$cacheLines = [IO.File]::ReadAllLines($OutputPath)
+if (-not ($cacheLines | Where-Object { $_.StartsWith('BITRO_CACHE_REDIS_PASSWORD=') })) {
+    $cachePassword = New-RandomSecret
+    [IO.File]::AppendAllText($OutputPath, "`nBITRO_CACHE_REDIS_PASSWORD=$cachePassword`n", [Text.UTF8Encoding]::new($false))
+}
+if (-not ($cacheLines | Where-Object { $_.StartsWith('BITRO_CACHE_REDIS_CONNECTION_STRING=') })) {
+    $cachePassword = Read-LocalSetting 'BITRO_CACHE_REDIS_PASSWORD'
+    [IO.File]::AppendAllText($OutputPath, "`nBITRO_CACHE_REDIS_CONNECTION_STRING=backend-cache:6379,password=$cachePassword,abortConnect=false`n", [Text.UTF8Encoding]::new($false))
+}
 New-Item -ItemType Directory -Path $privateDirectory -Force | Out-Null
 $storageConfig = @{
     identities = @(@{
