@@ -1,16 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import {commerceCourses} from '@/lib/course-commerce';
 import { useState } from 'react';
 import { ArrowLeft, BookOpen, Check, ChevronDown, Clock3, Code2, Compass, Layers3, Play, Search, Server, Sparkles, Target, Zap } from 'lucide-react';
 import { courseProvider, faNumber, type Course } from '@/lib/courses';
 import { useAppStore } from '@/stores/use-app-store';
 import './learning.css';
+import { CourseAccess } from './course-access';
 
 const courseIcons = { code: Code2, server: Server, layers: Layers3 };
 
 export function CourseMark({ course, small = false }: { course: Course; small?: boolean }) {
-  const Icon = courseIcons[course.icon as keyof typeof courseIcons] ?? Code2;
+  const cover=commerceCourses.find(c=>c.id===course.slug)?.cover;
+  const Icon = courseIcons[(cover?.presetKey??course.icon) as keyof typeof courseIcons] ?? Code2;
+  if(cover?.kind==='image')return <span className={`lp-course-mark lp-${course.color}`}><Image src="/media/course-cover.png" alt="" width={small?36:64} height={small?36:64} style={{borderRadius:12,objectFit:'cover'}}/></span>;
   return <span className={`lp-course-mark lp-${course.color} ${small ? 'lp-mark-small' : ''}`}><Icon size={small ? 22 : 32} strokeWidth={1.6} /></span>;
 }
 
@@ -45,7 +50,7 @@ export function CourseDetail({ slug }: { slug: string }) {
   return <div className={`lp-page lp-${course.color}`}>
     <Link href="/learn" className="lp-back"><ArrowLeft size={16} /> همهٔ مسیرهای یادگیری</Link>
     <div className="lp-course-detail-hero panel"><div><span className="eyebrow">{course.tag} · مسیر یادگیری بیترو</span><h1>{course.title}</h1><p className="muted">{course.description}</p><div className="lp-course-meta"><span><Layers3 size={16} /> {faNumber(course.modules.length)} فصل</span><span><BookOpen size={16} /> {faNumber(course.lessons.length)} درس آماده</span><span><Clock3 size={16} /> {faNumber(duration)} دقیقه تجربهٔ تعاملی</span></div>{next ? <Link href={`/learn/${slug}/${next.slug}`} className="btn btn-primary"><Play size={17} fill="currentColor" /> {done ? 'ادامهٔ یادگیری' : 'شروع یادگیری'} <ArrowLeft size={17} /></Link> : <Link href="/concept-labs/di" className="btn btn-primary">مفهوم معماری را تجربه کن <ArrowLeft size={17} /></Link>}</div><div className="lp-detail-art"><CourseMark course={course} /><span dir="ltr">{course.subtitle}</span><div className="lp-detail-dots"><i /><i /><i /><i /><i /></div></div></div>
-    <div className="lp-detail-layout"><section><div className="lp-section-heading"><h2>درس‌های تعاملی</h2><span className="muted">{faNumber(done)} از {faNumber(course.lessons.length)} درس کامل شده</span></div>{course.lessons.length > 0 ? <div className="lp-lesson-list">{course.lessons.map((lesson, i) => {
+    <CourseAccess courseId={slug}/>{commerceCourses.find(c=>c.id===slug)?.commerceType!=='free'&&<section className="panel" style={{padding:24,marginBlock:20}}><h2>سرفصل‌های بخش اسپات‌پلیر</h2><p>برای دریافت ادامهٔ دوره، پس از افزودن آن به دوره‌های من، خرید یا فعال‌سازی ادمین لازم است.</p><ul>{course.modules.slice(slug==='dotnet'?6:0).map(title=><li key={title}>{title}</li>)}</ul></section>}<div className="lp-detail-layout"><section><div className="lp-section-heading"><h2>درس‌های تعاملی</h2><span className="muted">{faNumber(done)} از {faNumber(course.lessons.length)} درس کامل شده</span></div>{course.lessons.length > 0 ? <div className="lp-lesson-list">{course.lessons.map((lesson, i) => {
       const isDone = completed.includes(`${slug}/${lesson.slug}`);
       return <Link href={`/learn/${slug}/${lesson.slug}`} key={lesson.slug} className="panel lp-lesson-row"><span className={`lp-lesson-number ${isDone ? 'done' : ''}`}>{isDone ? <Check size={19} /> : faNumber(i + 1).padStart(2, '۰')}</span><div><h3>{lesson.title}</h3><p className="muted">{lesson.description}</p></div><span className="lp-lesson-time"><Clock3 size={14} /> {faNumber(lesson.duration)} دقیقه</span><ArrowLeft size={18} /></Link>;
     })}</div> : <div className="panel lp-empty"><Layers3 size={35} /><h3>نقشهٔ راه معماری، از مفهوم تا سیستم</h3><p className="muted">در این نسخه، نقشهٔ کامل فصل‌ها در دسترس است. برای شروع، تزریق وابستگی و هم‌زمانی را در آزمایشگاه تجربه کن.</p><Link className="btn btn-primary" href="/concept-labs">ورود به آزمایشگاه <ArrowLeft size={16} /></Link></div>}

@@ -9,13 +9,20 @@ import { courseProvider, faNumber } from '@/lib/courses';
 import { useAppStore } from '@/stores/use-app-store';
 import { canAdvanceLesson, lessonDefinitions, lessonStepTitles, runLessonPreview } from './lesson-data';
 import './lessons.css';
+import { useCourseCommerce } from '@/lib/course-commerce';
+import { CourseAccess } from '@/features/learning/course-access';
+import {LessonSavePanel} from '@/features/learning/learning-save-panel';
+import {learningProvider} from '@/lib/learning-provider';
 
 type MobilePanel = 'learn' | 'visualize' | 'code' | 'output';
 
-export function LessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }: { courseSlug: string; lessonSlug: string; initialMode?: 'guided' | 'explore' }) {
+function EnrolledLessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }: { courseSlug: string; lessonSlug: string; initialMode?: 'guided' | 'explore' }) {
   const lesson = lessonDefinitions[lessonSlug];
   const course = courseProvider.get(courseSlug)!;
   const lessonId = `${courseSlug}/${lessonSlug}`;
+  const account=useAppStore(s=>s.email);
+  const bufferKey=`bitro-lesson-${encodeURIComponent(account)}:${lessonId}`;
+  const [assessmentError,setAssessmentError]=useState('');
   const completeLesson = useAppStore(state => state.completeLesson);
   const completed = useAppStore(state => state.completedLessons.includes(lessonId));
   const theme = useAppStore(state => state.theme);
@@ -46,7 +53,7 @@ export function LessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }:
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(`bitro-lesson-${lessonId}`) ?? 'null');
+      const saved = JSON.parse(localStorage.getItem(bufferKey) ?? 'null');
       if (saved) {
         if (typeof saved.guidedCode === 'string') setGuidedCode(saved.guidedCode);
         if (typeof saved.exploreCode === 'string') setExploreCode(saved.exploreCode);
@@ -55,11 +62,11 @@ export function LessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }:
       }
     } catch { /* A corrupt local preview snapshot is safely ignored. */ }
     setLoaded(true);
-  }, [lessonId]);
+  }, [lessonId,bufferKey]);
   useEffect(() => {
     if (!loaded) return;
-    try { localStorage.setItem(`bitro-lesson-${lessonId}`, JSON.stringify({ guidedCode, exploreCode, passed, step })); } catch { /* The lesson stays usable if browser storage is unavailable. */ }
-  }, [guidedCode, exploreCode, passed, step, loaded, lessonId]);
+    try { localStorage.setItem(bufferKey, JSON.stringify({ guidedCode, exploreCode, passed, step })); } catch { /* The lesson stays usable if browser storage is unavailable. */ }
+  }, [guidedCode, exploreCode, passed, step, loaded, bufferKey]);
 
   const run = useCallback(() => {
     const result = runLessonPreview(code, lesson);
@@ -85,11 +92,13 @@ export function LessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }:
     if (step === 4 && passed) { completeLesson(lessonId); return; }
     if (canAdvanceLesson(step, passed)) goToStep(Math.min(4, step + 1));
   };
-  const submit = () => { const correct = selection === lesson.answer; setFeedback(correct ? 'correct' : 'incorrect'); if (correct) setPassed(true); };
+  const submit = async () => {setAssessmentError('');try{const result=await learningProvider.submit(lessonId,true,{contentVersion:1,idempotencyKey:crypto.randomUUID(),answers:[{questionId:'lesson',optionId:String(selection)}]});setFeedback(result.isPassed?'correct':'incorrect');if(result.isPassed){setPassed(true);completeLesson(lessonId);}}catch(e){setAssessmentError((e as Error).message);}};
   const copy = async () => { try { await navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); } };
   const progress = completed ? 100 : Math.round(step / 5 * 100);
 
   return <div className={`lesson-player ${maximized ? 'blp-maximized' : ''}`}>
+    <LessonSavePanel id={lessonId} revision={passed} buffer={{guidedCode,exploreCode,step}} onLoad={s=>{setGuidedCode(s.drafts.find(d=>d.mode==='guided')?.code??lesson.code);setExploreCode(s.drafts.find(d=>d.mode==='explore')?.code??lesson.code);setStep(s.progress.completedAt?s.progress.step:Math.min(3,s.progress.step));setPassed(Boolean(s.progress.completedAt));}}/>
+    {assessmentError&&<p role="alert">{assessmentError}</p>}
     <header className="blp-header"><Link href="/dashboard" className="blp-logo" aria-label="داشبورد بیترو"><Braces size={26} /><span dir="ltr">bitro<span>learn</span></span></Link><span className="blp-header-divider" /><Link href={`/learn/${courseSlug}`} className="blp-course-back"><ArrowRight size={15} />{course.title}</Link><div className="blp-header-progress"><span>پیشرفت درس</span><div><i style={{ width: `${progress}%` }} /></div><strong>{faNumber(progress)}٪</strong></div><button className="blp-icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label="تغییر پوسته">{theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button><Link href={`/learn/${courseSlug}`} className="blp-close" aria-label="خروج از درس"><X size={18} /></Link></header>
     <div className="blp-toolbar"><div className="blp-lesson-title"><span className="blp-lesson-icon"><BookOpen size={17} /></span><div><h1>{lesson.title}</h1><span>{faNumber(lesson.duration)} دقیقه · درس تعاملی</span></div></div><div className="blp-mode-switch" aria-label="حالت درس"><button className={mode === 'guided' ? 'active' : ''} onClick={() => setMode('guided')}><BookOpen size={13} /> با راهنما</button><button className={mode === 'explore' ? 'active' : ''} onClick={() => { setMode('explore'); setWorkspaceTab('code'); }}><FlaskConical size={13} /> آزمایش آزاد</button></div><div className="blp-toolbar-actions"><span className="blp-preview-badge"><span /> پیش‌نمایش آموزشی</span><button className="blp-icon" onClick={() => setShowInstructions(!showInstructions)} aria-label={showInstructions ? 'بستن راهنمای درس' : 'نمایش راهنمای درس'}><PanelRightClose size={17} /></button><button className="blp-icon" onClick={() => { if (window.innerWidth <= 1200) setInspectorDrawer(!inspectorDrawer); else setShowInspector(!showInspector); }} aria-label="نمایش یا پنهان‌کردن خروجی"><Terminal size={17} /></button></div></div>
     <div ref={layout} className={`blp-layout ${!showInstructions ? 'blp-hide-instructions' : ''} ${!showInspector ? 'blp-hide-inspector' : ''} ${inspectorDrawer ? 'blp-inspector-drawer' : ''} blp-mobile-${mobilePanel}`} style={{ '--blp-instructions': `${widths.instructions}px`, '--blp-inspector': `${widths.inspector}px` } as CSSProperties}>
@@ -114,4 +123,11 @@ export function LessonPlayer({ courseSlug, lessonSlug, initialMode = 'guided' }:
     <footer className="blp-footer"><button className="btn btn-ghost" disabled={step === 0} onClick={() => goToStep(step - 1)}><ArrowRight size={15} /> قدم قبل</button><span className="blp-footer-title">{lessonStepTitles[step]}<i />{faNumber(step + 1)} از ۵</span>{completed && step === 4 ? <Link className="btn btn-primary" href={nextLesson ? `/learn/${courseSlug}/${nextLesson.slug}` : `/learn/${courseSlug}`}>{nextLesson ? 'درس بعدی' : 'بازگشت به مسیر'}<ArrowLeft size={15} /></Link> : <button className="btn btn-primary" onClick={advance} disabled={!canAdvanceLesson(step, passed)}>{step === 4 ? 'اتمام و ثبت درس' : 'قدم بعدی'}{step === 4 ? <Check size={15} /> : <ArrowLeft size={15} />}</button>}</footer>
     <nav className="blp-mobile-nav" aria-label="پنل‌های درس">{([{ id: 'learn', label: 'یادگیری', icon: BookOpen }, { id: 'visualize', label: 'تصویر مفهوم', icon: FlaskConical }, { id: 'code', label: 'کدنویسی', icon: Code2 }, { id: 'output', label: 'خروجی', icon: Terminal }] as const).map(({ id, label, icon: Icon }) => <button key={id} className={mobilePanel === id ? 'active' : ''} onClick={() => { setMobilePanel(id); if (id === 'visualize' || id === 'code') setWorkspaceTab(id); }}><Icon size={18} /><span>{label}</span></button>)}</nav>
   </div>;
+}
+
+export function LessonPlayer(props:{courseSlug:string;lessonSlug:string;initialMode?:'guided'|'explore'}) {
+ const account=useAppStore(s=>s.email);
+ const session=useAppStore(s=>s.session),membership=useCourseCommerce(s=>s.memberships.some(m=>m.courseId===props.courseSlug));
+ if(!session||!membership)return <main style={{maxWidth:900,margin:'40px auto',padding:24}}><h1>ابتدا دوره را به دوره‌های من اضافه کنید</h1><CourseAccess courseId={props.courseSlug}/><Link href={`/learn/${props.courseSlug}`}>معرفی و سرفصل‌های دوره</Link></main>;
+ return <EnrolledLessonPlayer key={account} {...props}/>;
 }

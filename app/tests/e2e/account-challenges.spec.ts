@@ -14,6 +14,7 @@ test('local onboarding, search, and settings persist',async({page})=>{
   await expect(page.getByRole('heading',{level:1})).toContainText('سارا');
 });
 test('a structured challenge validates all answers and records completion',async({page})=>{
+  await page.addInitScript(()=>{const saved=JSON.parse(localStorage.getItem('bitro-progress')??'{"state":{}}');localStorage.setItem('bitro-progress',JSON.stringify({...saved,state:{...saved.state,session:true}}));localStorage.setItem('bitro-course-commerce-v1',JSON.stringify({state:{memberships:[{courseId:'csharp',paidAccess:false,licenseStatus:'locked',licenseSource:'none',licenseKey:null}],invoices:[]},version:0}));});
   await page.goto('/challenges/variable-assignment');
   await page.locator('input[name="assign"][value="30"]').check();
   await page.locator('input[name="copy"][value="7"]').check();

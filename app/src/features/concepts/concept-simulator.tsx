@@ -27,24 +27,24 @@ export const conceptDefinitions = [
   { slug: 'transactions', title: 'تراکنش‌ها', subtitle: 'همهٔ تغییرها، یا هیچ‌کدام', icon: Database, category: 'بک‌اند', description: 'انتقال اعتبار را ثبت کن یا همهٔ تغییرها را برگردان.', color: 'green' },
 ];
 
-interface ConceptSimulatorProps { concept?: string; compact?: boolean }
+interface ConceptSimulatorProps { concept?: string; compact?: boolean; settings?: Record<string,string|number|boolean> }
 
-export function ConceptSimulator({ concept = 'variables', compact = false }: ConceptSimulatorProps) {
-  const [playback, dispatch] = useReducer(playbackReducer, { tick: 0, total: concept === 'http' ? 7 : concept === 'loops' ? 5 : 12, playing: false, speed: 1 });
-  const [value, setValue] = useState(42);
-  const [name, setName] = useState('score');
+export function ConceptSimulator({ concept = 'variables', compact = false, settings = {} }: ConceptSimulatorProps) {
+  const [playback, dispatch] = useReducer(playbackReducer, { tick: 0, total: concept === 'http' ? 7 : concept === 'loops' ? Number(settings.iterations??5) : 12, playing: false, speed: Number(settings.playbackSpeed??1) });
+  const [value, setValue] = useState(Number(settings.initialValue ?? 42));
+  const [name, setName] = useState(String(settings.variableName ?? 'score'));
   const [cars, dispatchCars] = useReducer(carsReducer, initialCars);
   const [selectedCar, setSelectedCar] = useState(1);
-  const [schedule, setSchedule] = useState<Schedule>('concurrent');
-  const [shared, setShared] = useState(true);
-  const [referenceValue, setReferenceValue] = useState(10);
+  const [schedule, setSchedule] = useState<Schedule>((settings.schedule as Schedule) ?? 'concurrent');
+  const [shared, setShared] = useState(Boolean(settings.shared ?? true));
+  const [referenceValue, setReferenceValue] = useState(Number(settings.initialValue ?? 10));
   const [animal, setAnimal] = useState('dog');
   const [sound, setSound] = useState(false);
-  const [lifetime, setLifetime] = useState('scoped');
+  const [lifetime, setLifetime] = useState(String(settings.lifetime ?? 'scoped'));
   const [request, setRequest] = useState(1);
   const [resolve, setResolve] = useState(1);
   const [transaction, dispatchTransaction] = useReducer(transactionReducer, initialTransaction);
-  const [loopCount, setLoopCount] = useState(5);
+  const [loopCount, setLoopCount] = useState(Number(settings.iterations ?? 5));
   const definition = conceptDefinitions.find(item => item.slug === concept);
   const currentCar = cars.find(car => car.id === selectedCar) ?? cars[0];
 
@@ -56,8 +56,8 @@ export function ConceptSimulator({ concept = 'variables', compact = false }: Con
 
   const reset = () => {
     dispatch({ type: 'reset', total: concept === 'http' ? 7 : concept === 'threads' && schedule === 'parallel' ? 6 : concept === 'loops' ? loopCount : 12 });
-    setValue(42); setName('score'); dispatchCars({ type: 'reset' }); setSelectedCar(1);
-    setReferenceValue(10); setSound(false); setRequest(1); setResolve(1); dispatchTransaction('reset');
+    setValue(Number(settings.initialValue ?? 42)); setName(String(settings.variableName ?? 'score')); dispatchCars({ type: 'reset' }); setSelectedCar(1);
+    setReferenceValue(Number(settings.initialValue ?? 10)); setSound(false); setRequest(1); setResolve(1); dispatchTransaction('reset');
   };
   const loopTick = Math.min(playback.tick, loopCount);
   const code = concept === 'variables' ? `int ${name} = ${value};\nConsole.WriteLine(${name});`
@@ -107,7 +107,7 @@ export function ConceptSimulator({ concept = 'variables', compact = false }: Con
       {concept === 'loops' && <div className="cs-loops-scene"><div className="cs-loop-count"><label htmlFor="loop-count">تعداد تکرارها</label><input id="loop-count" type="range" min="2" max="8" value={loopCount} onChange={event => { setLoopCount(Number(event.target.value)); dispatch({ type: 'reset', total: Number(event.target.value) }); }} /><strong>{persian(loopCount)}</strong></div><div className="cs-loop-iterations">{Array.from({ length: loopCount }, (_, index) => <div className={loopTick > index ? 'complete' : loopTick === index ? 'active' : ''} key={index}><span>i = {index}</span>{loopTick > index ? <Check size={24} /> : <RotateCcw size={22} />}</div>)}</div><div className="cs-loop-output" dir="ltr">{Array.from({ length: loopTick }, (_, index) => <span key={index}>{index}</span>)}</div></div>}
     </div>
     <div className="cs-code" dir="ltr"><div><span className="cs-code-dot" />{definition?.slug === 'http' ? 'Program.cs' : 'example.cs'}<span>C#</span></div><pre><code>{code}</code></pre></div>
-    {!compact && <div className="cs-explanation" aria-live="polite"><Sparkles size={17} /><p>{explanation}</p></div>}
+    {!compact && settings.showExplanation!==false && <div className="cs-explanation" aria-live="polite"><Sparkles size={17} /><p>{explanation}</p></div>}
     <div className="cs-controls">
       <button className="cs-icon-btn" onClick={reset} aria-label="بازنشانی آزمایش"><RotateCcw size={17} /></button>
       {usesPlayback ? <><button className="cs-icon-btn" onClick={() => dispatch({ type: 'step', delta: -1 })} aria-label="گام قبل" disabled={playback.tick === 0}><ChevronRight size={20} /></button><button className="cs-play" onClick={() => dispatch({ type: playback.playing ? 'pause' : 'play' })} aria-label={playback.playing ? 'توقف پخش' : 'شروع پخش'}>{playback.playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}{playback.playing ? 'توقف' : playback.tick >= playback.total ? 'پخش دوباره' : 'پخش'}</button><button className="cs-icon-btn" onClick={() => dispatch({ type: 'step' })} aria-label="گام بعد" disabled={playback.tick >= playback.total}><ChevronLeft size={20} /></button><select aria-label="سرعت پخش" value={playback.speed} onChange={event => dispatch({ type: 'speed', speed: Number(event.target.value) })}><option value={.5}>۰٫۵×</option><option value={1}>۱×</option><option value={2}>۲×</option></select><span className="cs-step-label">{persian(playback.tick)} / {persian(playback.total)}</span></> : <span className="cs-interact-hint"><CircleDot size={14} />{compact ? 'خودت امتحان کن' : 'با تغییر مقدارها، نتیجه را زنده ببین'}</span>}

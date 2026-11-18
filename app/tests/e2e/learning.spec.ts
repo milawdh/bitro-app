@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async({page})=>{
+  await page.addInitScript(()=>{
+    const progress=JSON.parse(localStorage.getItem('bitro-progress')??'{"state":{}}');
+    localStorage.setItem('bitro-progress',JSON.stringify({...progress,state:{...progress.state,session:true}}));
+    const commerce=JSON.parse(localStorage.getItem('bitro-course-commerce-v1')??'{"state":{"memberships":[],"invoices":[]}}');
+    for(const courseId of ['csharp','dotnet'])if(!commerce.state.memberships.some((m:{courseId:string})=>m.courseId===courseId))commerce.state.memberships.push({courseId,paidAccess:false,licenseStatus:'locked',licenseSource:'none',licenseKey:null});
+    localStorage.setItem('bitro-course-commerce-v1',JSON.stringify(commerce));
+  });
+});
+
 test('a learner can reach the first interactive lesson from the landing page', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('فقط کد نخوان');
@@ -62,7 +72,6 @@ test('a lesson requires a correct assessment and persists completion', async ({ 
   await page.getByRole('button', { name: 'بررسی پاسخ' }).click();
   await expect(page.locator('.blp-feedback')).toContainText('درست گفتی');
   await page.getByRole('button', { name: 'قدم بعدی', exact: true }).click();
-  await page.getByRole('button', { name: 'اتمام و ثبت درس' }).click();
   await expect(page.getByRole('link', { name: 'درس بعدی' })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('link', { name: 'درس بعدی' })).toBeVisible();

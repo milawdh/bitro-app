@@ -9,7 +9,7 @@ import { ThemeToggle } from './theme-toggle';
 import { useAppStore } from '@/stores/use-app-store';
 import { courses } from '@/lib/courses';
 
-const navigation=[{href:'/dashboard',label:'پیشخوان',icon:House},{href:'/learn',label:'مسیرهای یادگیری',icon:BookOpen},{href:'/concept-labs',label:'آزمایشگاه مفاهیم',icon:FlaskConical},{href:'/playground',label:'زمین بازی کد',icon:Braces},{href:'/challenges',label:'چالش‌ها',icon:Trophy},{href:'/projects',label:'پروژه‌های من',icon:FolderCode},{href:'/progress',label:'پیشرفت من',icon:ChartNoAxesCombined}];
+const navigation=[{href:'/my-courses',label:'دوره‌های من',icon:BookOpen},{href:'/dashboard',label:'پیشخوان',icon:House},{href:'/learn',label:'مسیرهای یادگیری',icon:BookOpen},{href:'/concept-labs',label:'آزمایشگاه مفاهیم',icon:FlaskConical},{href:'/playground',label:'زمین بازی کد',icon:Braces},{href:'/challenges',label:'چالش‌ها',icon:Trophy},{href:'/projects',label:'پروژه‌های من',icon:FolderCode},{href:'/progress',label:'پیشرفت من',icon:ChartNoAxesCombined}];
 export function AppShell({children}: {children:React.ReactNode}) {
   const path=usePathname(),router=useRouter(),[mobile,setMobile]=useState(false),[search,setSearch]=useState(false),[query,setQuery]=useState('');
   const name=useAppStore(s=>s.name),logout=useAppStore(s=>s.logout);

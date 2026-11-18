@@ -1,6 +1,7 @@
 ﻿import { expect, test } from '@playwright/test';
 
 test.describe('coding learning environments', () => {
+  test.beforeEach(async({page})=>{await page.addInitScript(()=>{localStorage.setItem('bitro-progress',JSON.stringify({state:{session:true},version:0}));localStorage.setItem('bitro-course-commerce-v1',JSON.stringify({state:{memberships:[{courseId:'dotnet',paidAccess:false,licenseStatus:'locked',licenseSource:'none',licenseKey:null}],invoices:[]},version:0}));});});
   test('runs a supported loop sample and exposes its deterministic trace', async ({ page }) => {
     await page.goto('/playground');
     await expect(page.locator('.monaco-editor')).toBeVisible({ timeout: 30000 });
@@ -43,7 +44,7 @@ test.describe('coding learning environments', () => {
     await editor.focus();
     await editor.press('ControlOrMeta+a');
     await editor.pressSequentially('namespace MyFirstApi;\npublic record Note(int Id);');
-    await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem('bitro-project-my-first-api') ?? '{}').files?.find((file: { path: string }) => file.path === 'Models/Note.cs')?.content)).toContain('record Note');
+    await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem('bitro-project-my-first-api:arman%40example.com') ?? '{}').files?.find((file: { path: string }) => file.path === 'Models/Note.cs')?.content)).toContain('record Note');
     await page.reload();
     await expect(page.locator('.pw-tree')).toContainText('Note.cs');
     await expect(page.locator('.pw-breadcrumb')).toContainText('Note.cs');
