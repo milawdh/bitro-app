@@ -26,6 +26,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<UserProject> UserProjects => Set<UserProject>();
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
+    public DbSet<CourseEnrollment> CourseEnrollments => Set<CourseEnrollment>();
+    public DbSet<CoursePaidAccess> CoursePaidAccess => Set<CoursePaidAccess>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<SpotPlayerLicense> SpotPlayerLicenses => Set<SpotPlayerLicense>();
+    public DbSet<ProviderAudit> ProviderAudits => Set<ProviderAudit>();
+    public DbSet<VideoAsset> VideoAssets => Set<VideoAsset>();
 
     #endregion
 
@@ -63,6 +69,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         });
 
         ConfigureContent(builder.Entity<Course>(), "Courses");
+        ConfigureCommerce(builder);
         builder.Entity<Course>(entity =>
         {
             entity.HasIndex(course => course.Slug).IsUnique();
@@ -104,7 +111,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             {
                 table.HasCheckConstraint("CK_Lessons_Duration", "\"Duration\" > 0");
                 table.HasCheckConstraint("CK_Lessons_Order", "\"Order\" >= 0");
-                table.HasCheckConstraint("CK_Lessons_Answer", "jsonb_typeof(\"ChoicesJson\") = 'array' AND (\"Status\" <> 'published' OR (\"Answer\" >= 0 AND \"Answer\" < jsonb_array_length(\"ChoicesJson\")))");
+                table.HasCheckConstraint("CK_Lessons_Answer", "jsonb_typeof(\"ChoicesJson\") = 'array' AND (NOT \"HasQuiz\" OR \"Status\" <> 'published' OR (\"Answer\" >= 0 AND \"Answer\" < jsonb_array_length(\"ChoicesJson\")))");
             });
         });
 
@@ -147,6 +154,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         ConfigureVersioned(builder.Entity<UserProgress>(), "UserProgress");
         builder.Entity<UserProgress>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_UserProgress_VideoPosition", "\"VideoPositionSeconds\" IS NULL OR (\"VideoPositionSeconds\" >= 0 AND \"VideoPositionSeconds\" < 'Infinity'::float8)"));
             UserForeignKey(entity, progress => progress.UserId);
             entity.Property(progress => progress.LessonId).HasMaxLength(160);
             entity.HasOne<Lesson>().WithMany().HasForeignKey(progress => progress.LessonId)
@@ -170,6 +178,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         ConfigureVersioned(builder.Entity<UserProject>(), "UserProjects");
         builder.Entity<UserProject>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_UserProjects_Checkpoint", "\"Checkpoint\" >= 0 AND \"TemplateVersion\" >= 1"));
             UserForeignKey(entity, project => project.UserId);
             entity.Property(project => project.ProjectTemplateId).HasMaxLength(160);
             Json(entity.Property(project => project.FilesJson));
@@ -181,6 +190,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         ConfigureVersioned(builder.Entity<QuizAttempt>(), "QuizAttempts");
         builder.Entity<QuizAttempt>(entity =>
         {
+            entity.Property(a => a.IdempotencyKey).HasMaxLength(160);
+            entity.HasIndex(a => new { a.UserId,a.IdempotencyKey }).IsUnique().HasFilter("\"IdempotencyKey\" IS NOT NULL");
+            entity.HasIndex(a => new { a.UserId,a.ChallengeId,a.IsPassed });
+            Json(entity.Property(a => a.FeedbackJson));
             UserForeignKey(entity, attempt => attempt.UserId);
             entity.Property(attempt => attempt.LessonId).HasMaxLength(160);
             entity.Property(attempt => attempt.ChallengeId).HasMaxLength(160);
@@ -234,6 +247,24 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     #endregion
 
     #region Private Configuration And Versioning
+
+    private static void ConfigureCommerce(ModelBuilder builder)
+    {
+        ConfigureVersioned(builder.Entity<CourseEnrollment>(), "CourseEnrollments");
+        ConfigureVersioned(builder.Entity<CoursePaidAccess>(), "CoursePaidAccess");
+        ConfigureVersioned(builder.Entity<Invoice>(), "Invoices");
+        ConfigureVersioned(builder.Entity<SpotPlayerLicense>(), "SpotPlayerLicenses");
+        ConfigureVersioned(builder.Entity<VideoAsset>(), "VideoAssets");
+        builder.Entity<CourseEnrollment>(e => { e.HasIndex(x => new { x.UserId, x.CourseId }).IsUnique(); e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId); e.HasOne<Course>().WithMany().HasForeignKey(x => x.CourseId); });
+        builder.Entity<CoursePaidAccess>(e => { e.HasIndex(x => new { x.UserId, x.CourseId }).IsUnique(); e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId); e.HasOne<Course>().WithMany().HasForeignKey(x => x.CourseId); });
+        builder.Entity<SpotPlayerLicense>(e => { e.HasIndex(x => new { x.UserId, x.CourseId }).IsUnique(); e.HasOne<CoursePaidAccess>().WithMany().HasForeignKey(x => new { x.UserId, x.CourseId }).HasPrincipalKey(x => new { x.UserId, x.CourseId }); });
+        builder.Entity<Invoice>(e => { e.HasIndex(x => new { x.UserId, x.IdempotencyKey }).IsUnique(); e.HasIndex(x => x.TrackId).IsUnique(); e.HasIndex(x => new { x.UserId, x.CourseId }).IsUnique().HasFilter("\"PaymentStatus\" IN ('creating','pending','paid','requestUnknown')"); e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId); e.HasOne<Course>().WithMany().HasForeignKey(x => x.CourseId); });
+        builder.Entity<ProviderAudit>(e => { e.HasKey(x => x.Id); e.HasIndex(x => new { x.CorrelationId, x.StartedAt }); });
+        builder.Entity<Course>().Property(x => x.AnimationsJson).HasColumnType("jsonb");
+        builder.Entity<Lesson>().Property(x => x.AnimationsJson).HasColumnType("jsonb");
+        builder.Entity<Course>().ToTable(t => t.HasCheckConstraint("CK_Courses_Commerce", "(\"CommerceType\" = 'free' AND \"PriceRial\" = 0) OR (\"CommerceType\" IN ('mixed','paid') AND \"PriceRial\" >= 1000)"));
+        builder.Entity<Lesson>().ToTable(t => t.HasCheckConstraint("CK_Lessons_Delivery", "\"Delivery\" IN ('onsite','spotplayer') AND (\"Delivery\" <> 'spotplayer' OR \"VideoId\" IS NULL)"));
+    }
 
     private void PrepareVersionedEntities()
     {

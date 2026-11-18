@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS migration
+WORKDIR /src
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2SUPPORT=false NUGET_CERT_REVOCATION_MODE=offline
+COPY . .
+ARG MIGRATION_NAME=CourseCommerce
+RUN --mount=type=cache,id=bitro-backend-nuget-v1,target=/root/.nuget/packages,sharing=locked \
+    --mount=type=cache,id=bitro-backend-nuget-http-v1,target=/root/.local/share/NuGet/http-cache,sharing=locked \
+    dotnet tool restore && dotnet restore src/BitroLearn.Api --locked-mode --disable-parallel && \
+    dotnet build src/BitroLearn.Api --no-restore --configuration Release /p:UseSharedCompilation=false && \
+    dotnet tool run dotnet-ef migrations add "$MIGRATION_NAME" --project src/BitroLearn.Api --configuration Release --no-build
+FROM scratch
+COPY --from=migration /src/src/BitroLearn.Api/Data/Migrations/ /

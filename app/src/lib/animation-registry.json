@@ -1,0 +1,49 @@
+{
+  "variables": {
+    "initialValue": 42,
+    "variableName": "score",
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "references": {
+    "initialValue": 10,
+    "shared": true,
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "objects": {
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "oop": {
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "threads": {
+    "schedule": "concurrent",
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "async": {
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "http": {
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "di": {
+    "lifetime": "scoped",
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "transactions": {
+    "playbackSpeed": 1,
+    "showExplanation": true
+  },
+  "loops": {
+    "iterations": 5,
+    "playbackSpeed": 1,
+    "showExplanation": true
+  }
+}

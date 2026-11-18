@@ -31,6 +31,14 @@ public sealed class Course : ContentEntity
     public string Subtitle { get; set; } = string.Empty;
     public string Level { get; set; } = "beginner";
     public string Color { get; set; } = "purple";
+    public string CommerceType { get; set; } = "free";
+    public long PriceRial { get; set; }
+    public string? SpotPlayerCourseId { get; set; }
+    public string CoverKind { get; set; } = "preset";
+    public string CoverPresetKey { get; set; } = "code";
+    public string? CoverFileId { get; set; }
+    public string? IntroVideoId { get; set; }
+    public string AnimationsJson { get; set; } = "[]";
 
     #endregion
 }
@@ -51,6 +59,10 @@ public sealed class Lesson : ContentEntity
     #region Properties
 
     public string CourseId { get; set; } = string.Empty;
+    public string Delivery { get; set; } = "onsite";
+    public string? VideoId { get; set; }
+    public bool HasQuiz { get; set; } = true;
+    public string AnimationsJson { get; set; } = "[]";
     public string ModuleId { get; set; } = string.Empty;
     public int Order { get; set; }
     public int Duration { get; set; }

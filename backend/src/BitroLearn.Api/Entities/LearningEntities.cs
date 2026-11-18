@@ -7,6 +7,7 @@ public sealed class UserProgress : VersionedEntity
     public string UserId { get; set; } = string.Empty;
     public string LessonId { get; set; } = string.Empty;
     public int Step { get; set; }
+    public double? VideoPositionSeconds { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
 
     #endregion
@@ -31,6 +32,9 @@ public sealed class UserProject : VersionedEntity
     public string UserId { get; set; } = string.Empty;
     public string ProjectTemplateId { get; set; } = string.Empty;
     public string FilesJson { get; set; } = "[]";
+    public string? ActiveFile { get; set; }
+    public int Checkpoint { get; set; }
+    public int TemplateVersion { get; set; } = 1;
 
     #endregion
 }
@@ -43,6 +47,10 @@ public sealed class QuizAttempt : VersionedEntity
     public string? LessonId { get; set; }
     public string? ChallengeId { get; set; }
     public string AnswersJson { get; set; } = "{}";
+    public string? IdempotencyKey { get; set; }
+    public string RequestHash { get; set; } = "";
+    public int ContentVersion { get; set; } = 1;
+    public string FeedbackJson { get; set; } = "[]";
     public bool IsPassed { get; set; }
     public int CorrectCount { get; set; }
     public int TotalCount { get; set; } = 1;

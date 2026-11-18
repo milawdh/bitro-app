@@ -1,0 +1,20 @@
+namespace BitroLearn.Api.Services;
+
+public record ProgressDto(string LessonId,int Version,int Step,double? VideoPositionSeconds,DateTimeOffset? CompletedAt);
+public record ProgressRequest(int Version,int Step,double? VideoPositionSeconds);
+public record CourseProgressDto(string CourseId,ProgressDto[] Lessons,string[] CompletedChallengeIds);
+public record DraftDto(string LessonId,string Mode,int Version,string Code);
+public record DraftRequest(int Version,string Code);
+public record ProjectFileDto(string Path,string Content);
+public record WorkspaceDto(string TemplateId,int Version,int TemplateVersion,int CurrentTemplateVersion,ProjectFileDto[] Files,string? ActiveFile,int Checkpoint);
+public record WorkspaceRequest(int Version,ProjectFileDto[] Files,string? ActiveFile,int Checkpoint);
+public record CompleteLessonRequest(int ContentVersion);
+public record AttemptRequest(int ContentVersion,string IdempotencyKey,SubmittedAnswer[] Answers);
+public record SubmittedAnswer(string QuestionId,string OptionId);
+public record QuestionFeedback(string QuestionId,bool Correct,string Explanation);
+public record AttemptDto(string Id,string? LessonId,string? ChallengeId,int ContentVersion,bool IsPassed,int CorrectCount,int TotalCount,QuestionFeedback[] Feedback,DateTimeOffset CreatedAt);
+public record ChallengeOptionDto(string Id,string Label);
+public record ChallengeQuestionDto(string Id,string Prompt,string Code,ChallengeOptionDto[] Options);
+public record ChallengeDto(string Id,int Version,string Slug,string Title,string Description,string Hint,ChallengeQuestionDto[] Questions);
+public record LabDto(string Id,int Version,string Slug,string Title,string Description,string Concept,System.Text.Json.JsonElement Config);
+public record ProjectTemplateDto(string Id,int Version,string Slug,string Title,string Description,string CourseId,int Duration,string Difficulty,System.Text.Json.JsonElement Objectives,System.Text.Json.JsonElement Files);

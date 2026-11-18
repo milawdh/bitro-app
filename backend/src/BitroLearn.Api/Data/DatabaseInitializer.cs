@@ -35,6 +35,13 @@ public sealed class DatabaseInitializer(
 
             await SeedIdentityAsync(cancellationToken);
             var snapshot = await ReadSnapshotAsync(cancellationToken);
+            foreach (var course in snapshot.Courses)
+            {
+                course.CoverPresetKey = course.Id == "dotnet" ? "server" : course.Id == "architecture" ? "layers" : "code";
+                course.AnimationsJson = JsonSerializer.Serialize(snapshot.Lessons.Where(l => l.CourseId == course.Id).Select(l => l.Concept).Distinct().Select(key => new { key,enabled = true,settings = new { } }));
+            }
+            foreach (var lesson in snapshot.Lessons)
+                lesson.AnimationsJson = JsonSerializer.Serialize(new[] { new { key = lesson.Concept,enabled = true,settings = new { } } });
             await InsertMissingAsync(snapshot.Courses, cancellationToken);
             await InsertMissingAsync(snapshot.Modules, cancellationToken);
             await InsertMissingAsync(snapshot.Lessons, cancellationToken);
